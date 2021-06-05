@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import Group
 from datetime import datetime
 from custom_users.models import CustomUser
 
@@ -25,8 +24,8 @@ class Locations(models.Model):
     name = models.CharField("Name", null=False, max_length=30)
     city = models.CharField("Name", null=False, max_length=30)
     address = models.CharField("Address", null=False, max_length=128)
-    latitude = models.DecimalField("Latitude", null=True, max_length=15)
-    latitude = models.DecimalField("Longitude", null=True, max_length=15)
+    #latitude = models.DecimalField("Latitude", null=True, max_length=15)
+    #latitude = models.DecimalField("Longitude", null=True, max_length=15)
     active = models.BooleanField("Activo?",null=False, default=True)
     open_schedule = models.CharField("Name", null=False, max_length=128)
     created_at = models.DateTimeField("Created At", null=False, auto_now_add=True)
