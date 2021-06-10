@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 #from constants import *
@@ -17,6 +18,7 @@ class CustomUserManager(BaseUserManager):
             )
             user.set_password(password)
             user.save()
+
             return user
 
     def create_superuser(self, email, password):
@@ -27,14 +29,23 @@ class CustomUserManager(BaseUserManager):
         return user
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
-    email = models.CharField("Email", unique=True, max_length=50)
-    user_name = models.CharField("Username",null=True,max_length=256)
+    country = models.ForeignKey(
+        'application.Countries',
+        on_delete=models.PROTECT,
+        null=True
+    )
     name = models.CharField("Name",null=True,max_length=64)
-    last_name = models.CharField("Lastname",null=True,max_length=64)
-    phone = models.CharField("Phone",null=True,max_length=12)
-    is_admin = models.BooleanField("Admin", null=False, default=False)
-    is_active = models.BooleanField("Activo", null=False, default=True)
-    is_superuser = models.BooleanField("SuperAdmin", null=False, default=False)
+    email = models.CharField("Email", unique=True, max_length=50)
+    email_verified = models.BooleanField("Email Validated?",null=True,default=False)
+    phone_number = models.CharField("Phone",null=True,max_length=16, default='-')
+    phone_number_verified = models.BooleanField("Phone Verified?",null=True,default=False)
+    profile_pic_url= models.CharField("Profile Pic", null=True, default='', max_length=256 )
+    is_admin = models.BooleanField("Admin?", null=False, default=False)
+    is_active = models.BooleanField("Active?", null=False, default=True)
+    is_blocked = models.BooleanField("Blocked?", null=False, default=False)
+    is_superuser = models.BooleanField("Super Admin?", null=False, default=False)
+    created_at = models.DateTimeField("Created Date", null=False, default=datetime.now(tz=timezone.utc))
+    updatate_at = models.DateTimeField("Updated Date", null=False, default=datetime.now(tz=timezone.utc))
     
     objects = CustomUserManager()
 
@@ -50,12 +61,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return '{}  {}'.format(self.name, self.last_name)
-
-    #def has_perm(self, perm, obj=None):
-    #    return False
-
-    #def has_module_perms(self, app_label):
-    #    return True
 
     @property
     def is_staff(self):
