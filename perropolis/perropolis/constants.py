@@ -1,5 +1,5 @@
 
-#Message Types
+# Message Types
 VERIFICATION_CODE = "Verification Code"
 REMINDER = "Reminder"
 NOTIFICATION = "Notification"
@@ -14,7 +14,7 @@ MESSAGE_TYPES = (
 
 ####################################################
 
-#Brand Types
+# Brand Types
 FOOD_AND_SNACKS = "Food/Snacks"
 DRUGS = "Drugs"
 ACCESSORIES = "Accesories/Toys"
@@ -27,7 +27,7 @@ BRAND_TYPES = (
 
 ####################################################
 
-#Animal sizes
+# Animal sizes
 TEA_CUP = "Tea cup"
 SMALL = "Small"
 MEDIUM = "Medium"
@@ -40,4 +40,17 @@ ANIMAL_SIZES = (
     (MEDIUM, "Medium"),
     (LARGE, "Large"),
     (GIANT, "GIANT")
+)
+
+# Drug Types
+PILLS = 'pills'
+INYECTION = 'inyection'
+SYRUP = 'syrup'
+SUPPOSITORY = 'suppository'
+
+DRUG_TYPES = (
+    (PILLS, 'Pills'),
+    (INYECTION, 'Inyection'),
+    (SYRUP, 'Syrup'),
+    (SUPPOSITORY, 'Suppository'),
 )

@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'custom_users',
-    'application',
+    'core_data',
 ]
 
 MIDDLEWARE = [
@@ -70,7 +70,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'perropolis.wsgi.application'
+WSGI_APPLICATION = 'perropolis.wsgi.core_data'
 
 
 # Database

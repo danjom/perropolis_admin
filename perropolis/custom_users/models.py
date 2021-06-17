@@ -30,7 +30,7 @@ class CustomUserManager(BaseUserManager):
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     country = models.ForeignKey(
-        'application.Countries',
+        'core_data.Country',
         on_delete=models.PROTECT,
         null=True
     )
@@ -43,10 +43,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField("Admin?", null=False, default=False)
     is_active = models.BooleanField("Active?", null=False, default=True)
     is_blocked = models.BooleanField("Blocked?", null=False, default=False)
-    is_superuser = models.BooleanField("Super Admin?", null=False, default=False)
-    created_at = models.DateTimeField("Created Date", null=False, default=datetime.now(tz=timezone.utc))
-    updatate_at = models.DateTimeField("Updated Date", null=False, default=datetime.now(tz=timezone.utc))
-    
+    is_superuser = models.BooleanField("Super Admin?", default=False)
+    created_at = models.DateTimeField("Created Date", auto_now_add=True)
+    updatate_at = models.DateTimeField("Updated Date", auto_now=True)
+
     objects = CustomUserManager()
 
     class Meta:
