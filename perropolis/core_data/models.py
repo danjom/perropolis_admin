@@ -115,6 +115,8 @@ class Vet(models.Model):
     home_visits = models.BooleanField(_('Home Visits'), default=False)
     receive_emergencies = models.BooleanField(_('Receive Emergencies'), default=False)
     address = models.TextField(_('Address'))
+    created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
     def __str__(self):
         return f'{self.name}-{self.country.name}'
