@@ -8,7 +8,8 @@ from  perropolis import constants
 class Country(models.Model):
     code = models.CharField(_('Code'), max_length=5)
     name = models.CharField(_('Name'), max_length=30, unique=True)
-    taxes_percentage = models.DecimalField(_('Taxes Percentage'), max_digits=4, decimal_places=2)
+    taxes_percentage = models.DecimalField(_('Taxes Percentage'), max_digits=4, decimal_places=2, null=False,
+                                           validators=[MaxValueValidator(100), MinValueValidator(0)])
     phone_number_code = models.CharField(_('Phone Number Code'), max_length=5)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
 
@@ -39,13 +40,14 @@ class Specie(models.Model):
 
 
 class Breed(models.Model):
-    species = models.ForeignKey(Specie, on_delete=models.PROTECT)
+    species = models.ForeignKey(Specie, on_delete=models.PROTECT, null=False)
     name = models.CharField(_('Name'), max_length=30)
-    life_expectancy = models.DecimalField(_('Life Expectancy'), max_digits=3, decimal_places=1)
+    life_expectancy = models.DecimalField(_('Life Expectancy'), max_digits=3, decimal_places=1,
+                                          validators=[MaxValueValidator(30), MinValueValidator(1)])
     # size = models.IntegerField(_('Size'), validators=[MaxValueValidator(99), MinValueValidator(0)])
-    size = models.CharField(max_length=32, choices=constants.ANIMAL_SIZES)
+    size = models.IntegerField(max_length=32, choices=constants.ANIMAL_SIZES)
     health_score = models.DecimalField(_('Healt Score'), max_digits=3, decimal_places=1,
-                                       validators=[MaxValueValidator(10), MinValueValidator(0)])
+                                       validators=[MaxValueValidator(99), MinValueValidator(0)])
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
@@ -76,9 +78,9 @@ class Service(models.Model):
         ]
 
 
-class MedicatSpeciality(models.Model):
+class MedicalSpeciality(models.Model):
     name = models.CharField(_('Name'), max_length=50)
-    description = models.TextField(_('Description'), max_length=256)
+    description = models.TextField(_('Description'), max_length=256, null=True, blank=True)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
@@ -87,7 +89,7 @@ class MedicatSpeciality(models.Model):
         verbose_name_plural = _('Medical Specialities')
         db_table = 'medical_specialities'
         indexes = [
-            models.Index(fields=['name'], name='ix_specialty_name'),
+            models.Index(fields=['name'], name='ix_speciality_name'),
         ]
 
 
@@ -115,7 +117,7 @@ class Vet(models.Model):
 
 class VetSpeciality(models.Model):
     vet = models.ForeignKey(Vet, on_delete=models.PROTECT)
-    speciality = models.ForeignKey(MedicatSpeciality, on_delete=models.PROTECT)
+    speciality = models.ForeignKey(MedicalSpeciality, on_delete=models.PROTECT)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
@@ -124,7 +126,7 @@ class VetSpeciality(models.Model):
         verbose_name_plural = _('Vet specialities')
         db_table = 'vet_specialities'
         indexes = [
-            models.Index(fields=['vet_id', 'speciality_id'], name='ix_specialty_vet'),
+            models.Index(fields=['vet_id', 'speciality_id'], name='ix_speciality_vet'),
         ]
         unique_together = ['vet_id', 'speciality_id']
 
@@ -146,7 +148,7 @@ class Brand(models.Model):
 
 
 class PetFood(models.Model):
-    name = models.CharField(_('Name'), max_length=20)
+    name = models.CharField(_('Name'), max_length=30)
     brand = models.ForeignKey(Brand, on_delete=models.PROTECT)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
@@ -162,9 +164,9 @@ class PetFood(models.Model):
 
 
 class PetDrug(models.Model):
-    name = models.CharField(_('Name'), max_length=20)
+    name = models.CharField(_('Name'), max_length=30)
     brand = models.ForeignKey(Brand, on_delete=models.PROTECT)
-    drug_type = models.CharField(_('Drug Type'), max_length=32, choices=constants.DRUG_TYPES)
+    drug_type = models.IntegerField(_('Drug Type'), max_length=32, choices=constants.DRUG_TYPES)
     admin_created = models.BooleanField(_('Admin Created'), default=False)
     admin_updated = models.BooleanField(_('Admin Updated'), default=False)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
@@ -199,7 +201,7 @@ class MedicalEvent(models.Model):
 class MedicalAction(models.Model):
     event = models.ForeignKey(MedicalEvent, on_delete=models.PROTECT)
     name = models.CharField(_('Name'), max_length=20)
-    description = models.TextField(_('Description'))
+    description = models.TextField(_('Description'), blank=True, null=True)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
