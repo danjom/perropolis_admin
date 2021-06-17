@@ -41,7 +41,7 @@ ANIMAL_SIZES = (
     (SMALL, _("Small")),
     (MEDIUM, _("Medium")),
     (LARGE, _("Large")),
-    (GIANT, _("GIANT"))
+    (GIANT, _("Giant"))
 )
 
 # Drug Types

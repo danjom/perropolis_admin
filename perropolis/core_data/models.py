@@ -9,7 +9,7 @@ class Country(models.Model):
     code = models.CharField(_('Code'), max_length=5)
     name = models.CharField(_('Name'), max_length=30, unique=True)
     taxes_percentage = models.DecimalField(_('Taxes Percentage'), max_digits=4, decimal_places=2, null=False,
-                                           validators=[MaxValueValidator(100), MinValueValidator(0)])
+                                           validators=[MaxValueValidator(99), MinValueValidator(0)])
     phone_number_code = models.CharField(_('Phone Number Code'), max_length=5)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
 
