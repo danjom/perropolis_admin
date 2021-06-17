@@ -30,6 +30,9 @@ class Specie(models.Model):
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
+    def __str__(self):
+        return f'{self.name}'
+
     class Meta:
         verbose_name = _('Specie')
         verbose_name_plural = _('Species')
@@ -45,11 +48,14 @@ class Breed(models.Model):
     life_expectancy = models.DecimalField(_('Life Expectancy'), max_digits=3, decimal_places=1,
                                           validators=[MaxValueValidator(30), MinValueValidator(1)])
     # size = models.IntegerField(_('Size'), validators=[MaxValueValidator(99), MinValueValidator(0)])
-    size = models.IntegerField(max_length=32, choices=constants.ANIMAL_SIZES)
+    size = models.IntegerField(choices=constants.ANIMAL_SIZES)
     health_score = models.DecimalField(_('Healt Score'), max_digits=3, decimal_places=1,
                                        validators=[MaxValueValidator(99), MinValueValidator(0)])
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
+
+    def __str__(self):
+        return f'{self.name}-{self.size}'
 
     class Meta:
         verbose_name = _('Breed')
@@ -69,6 +75,9 @@ class Service(models.Model):
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
     updated_by = models.IntegerField(_('Updated By'))
 
+    def __str__(self):
+        return f'{self.name}-{self.is_active}'
+
     class Meta:
         verbose_name = _('Service')
         verbose_name_plural = _('Services')
@@ -83,6 +92,9 @@ class MedicalSpeciality(models.Model):
     description = models.TextField(_('Description'), max_length=256, null=True, blank=True)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
+
+    def __str__(self):
+        return f'{self.name}-{self.updated_at}'
 
     class Meta:
         verbose_name = _('Medical Speciality')
@@ -104,6 +116,9 @@ class Vet(models.Model):
     receive_emergencies = models.BooleanField(_('Receive Emergencies'), default=False)
     address = models.TextField(_('Address'))
 
+    def __str__(self):
+        return f'{self.name}-{self.country.name}'
+
     class Meta:
         verbose_name = _('Vet')
         verbose_name_plural = _('Vets')
@@ -121,6 +136,9 @@ class VetSpeciality(models.Model):
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
+    def __str__(self):
+        return f'{self.vet.name}-{self.speciality.name}'
+
     class Meta:
         verbose_name = _('Vet Speciality')
         verbose_name_plural = _('Vet specialities')
@@ -134,9 +152,12 @@ class VetSpeciality(models.Model):
 class Brand(models.Model):
     name = models.CharField(_('Name'), max_length=30, unique=True)
     logo_url = models.URLField(_('Logo URL'), blank=True, null=True)
-    brand_type = models.IntegerField(_('Brand Type'), max_length=32, choices=constants.BRAND_TYPES)
+    brand_type = models.IntegerField(_('Brand Type'), choices=constants.BRAND_TYPES)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
+
+    def __str__(self):
+        return f'{self.name}-{self.brand_type}'
 
     class Meta:
         verbose_name = _('Brand')
@@ -153,6 +174,9 @@ class PetFood(models.Model):
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
+    def __str__(self):
+        return f'{self.name}-{self.brand.name}'
+
     class Meta:
         verbose_name = _('Pet Food')
         verbose_name_plural = _('Pet fods')
@@ -166,13 +190,16 @@ class PetFood(models.Model):
 class PetDrug(models.Model):
     name = models.CharField(_('Name'), max_length=30)
     brand = models.ForeignKey(Brand, on_delete=models.PROTECT)
-    drug_type = models.IntegerField(_('Drug Type'), max_length=32, choices=constants.DRUG_TYPES)
+    drug_type = models.IntegerField(_('Drug Type'), choices=constants.DRUG_TYPES)
     admin_created = models.BooleanField(_('Admin Created'), default=False)
     admin_updated = models.BooleanField(_('Admin Updated'), default=False)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     created_by = models.IntegerField(_('Created By'))
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
     updated_by = models.IntegerField(_('Updated By'))
+
+    def __str__(self):
+        return f'{self.name}-{self.drug_type}'
 
     class Meta:
         verbose_name = _('Pet Drug')
@@ -189,6 +216,9 @@ class MedicalEvent(models.Model):
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
+    def __str__(self):
+        return f'{self.name}'
+
     class Meta:
         verbose_name = _('Medical Event')
         verbose_name_plural = _('Medical events')
@@ -204,6 +234,9 @@ class MedicalAction(models.Model):
     description = models.TextField(_('Description'), blank=True, null=True)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
+
+    def __str__(self):
+        return f'{self.name}-{self.event.name}'
 
     class Meta:
         verbose_name = _('Medical Action')
