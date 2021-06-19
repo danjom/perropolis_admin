@@ -41,7 +41,8 @@ DJANGO_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
-    'algoliasearch_django',
+    # 'algoliasearch_django',
+    'cloudinary',
 ]
 
 OUR_APPS = [
@@ -147,4 +148,10 @@ ALGOLIA = {
 }
 
 # Cloudinary Settings
+CLOUDINARY = {
+  'cloud_name': os.getenv('CLOUDINARY_CLOUD_NAME', None),
+  'api_key':  os.getenv('CLOUDINARY_API_KEY', None),
+  'api_secret':  os.getenv('CLOUDINARY_API_SECRET', None),
+}
 
+CLOUDINARY_WORKING_ENVIRONMENT = os.getenv('CLOUDINARY_WORKING_ENVIRONMENT', 'dev')

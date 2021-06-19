@@ -1,6 +1,10 @@
+from cloudinary import uploader
+from cloudinary.models import CloudinaryField
+from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from  perropolis import constants
 
@@ -153,13 +157,36 @@ class VetSpeciality(models.Model):
 
 class Brand(models.Model):
     name = models.CharField(_('Name'), max_length=30, unique=True)
-    logo_url = models.URLField(_('Logo URL'), blank=True, null=True)
+    logo_url = CloudinaryField('logo', blank=True, null=True,
+                               folder=f'/platform/{settings.CLOUDINARY_WORKING_ENVIRONMENT}/brand_logos/')
+    # logo_url = models.URLField(_('Logo URL'), blank=True, null=True)
     brand_type = models.IntegerField(_('Brand Type'), choices=constants.BRAND_TYPES)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
     def __str__(self):
         return f'{self.name}-{self.brand_type}'
+
+    def logo_small(self):
+        try:
+            return mark_safe(self.logo_url.image(width=60, height=60))
+        except AttributeError:
+            return 'No Logo'
+
+    def logo(self):
+        try:
+            return mark_safe(self.logo_url.image())
+        except AttributeError:
+            return 'No Logo'
+
+    logo.short_description = logo_small.short_description = _('Logo')
+    logo.allow_tags = logo_small.allow_tags = True
+
+    @staticmethod
+    def delete_logo_from_cloudnary(public_id=None):
+        if public_id is None:
+            return
+        uploader.destroy(public_id, invalidate=True)
 
     class Meta:
         verbose_name = _('Brand')

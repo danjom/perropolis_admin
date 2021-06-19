@@ -69,10 +69,25 @@ class VetAdmin(admin.ModelAdmin):
 @register(Brand)
 class BrandAdmin(admin.ModelAdmin):
     # TODO: caledonia API integration!
-    list_display = ('name', 'brand_type', 'created_at', 'updated_at')
+    list_display = ('logo_small', 'name', 'brand_type', 'created_at', 'updated_at')
     list_display_links = list_display
     search_fields = ('name','brand_type')
     sortable_by = ('name', 'brand_type', 'created_at', 'updated_at')
+
+    readonly_fields = ('logo',)
+
+    def save_model(self,  request, obj, form, change):
+        if 'logo_url' in form.changed_data:
+            brand_logo = Brand.objects.values_list('logo_url', flat=True).get(pk=obj.pk)
+            if brand_logo is not None:
+                Brand.delete_logo_from_cloudnary(brand_logo.public_id)
+        super().save_model(request, obj, form, change)
+
+    def delete_model(self, request, obj):
+        brand_logo = Brand.objects.values_list('logo_url', flat=True).get(pk=obj.pk)
+        if brand_logo is not None:
+            Brand.delete_logo_from_cloudnary(brand_logo.public_id)
+        super().delete_model(request, obj)
 
 
 @register(PetFood)
