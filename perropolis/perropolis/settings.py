@@ -41,7 +41,8 @@ DJANGO_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
-    # 'algoliasearch_django',
+    'guardian',
+    'algoliasearch_django',
     'cloudinary',
 ]
 
@@ -155,3 +156,9 @@ CLOUDINARY = {
 }
 
 CLOUDINARY_WORKING_ENVIRONMENT = os.getenv('CLOUDINARY_WORKING_ENVIRONMENT', 'dev')
+
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend', # default
+    'guardian.backends.ObjectPermissionBackend',
+)
