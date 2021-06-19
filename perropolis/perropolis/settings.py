@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -31,16 +31,25 @@ AUTH_USER_MODEL = 'admin_user.User'
 
 # Application definition
 
-INSTALLED_APPS = [
+DJANGO_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+]
+
+THIRD_PARTY_APPS = [
+    'algoliasearch_django',
+]
+
+OUR_APPS = [
     'admin_user',
     'core_data',
 ]
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + OUR_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -127,3 +136,15 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Algolia Settings
+ALGOLIA = {
+    'APPLICATION_ID': os.getenv('ALGOLIA_APPLICATION_ID', None),
+    'API_KEY': os.getenv('ALGOLIA_API_KEY', None),
+    'INDEX_PREFIX': os.getenv('ALGOLIA_INDEX_PREFIX', 'dev'),
+    'AUTO_INDEXING': True,
+}
+
+# Cloudinary Settings
+
