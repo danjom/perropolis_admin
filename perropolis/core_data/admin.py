@@ -29,7 +29,6 @@ class SpecieAdmin(admin.ModelAdmin):
 
 @register(Breed)
 class BreedAdmin(admin.ModelAdmin):
-    # TODO: species__name to display
     list_display = ('name', 'species', 'size', 'created_at', 'updated_at')
     list_display_links = list_display
     search_fields = ('name', 'species__name')
@@ -116,7 +115,6 @@ class MedicalActionInline(admin.TabularInline):
 
 @register(MedicalEvent)
 class MedicalEventAdmin(admin.ModelAdmin):
-    # TODO: Description need text widget
     list_display = ('name', 'created_at', 'updated_at')
     list_display_links = list_display
     search_fields = ('name',)
