@@ -1,5 +1,6 @@
 from django.contrib.admin import register
 
+from core_data.forms import MedicalSpecialityForm, ServiceForm, MedicalActionForm
 from core_data.models import *
 from django.contrib import admin
 
@@ -37,6 +38,7 @@ class BreedAdmin(admin.ModelAdmin):
 
 @register(Service)
 class ServiceAdmin(admin.ModelAdmin):
+    form = ServiceForm
     list_display = ('name', 'is_active', 'created_at', 'updated_at')
     list_display_links = list_display
     search_fields = ('name',)
@@ -45,7 +47,8 @@ class ServiceAdmin(admin.ModelAdmin):
 
 @register(MedicalSpeciality)
 class MedicalSpecialityAdmin(admin.ModelAdmin):
-    # TODO: Description need text widget
+    form = MedicalSpecialityForm
+
     list_display = ('name', 'created_at', 'updated_at')
     list_display_links = list_display
     search_fields = ('name',)
@@ -68,7 +71,6 @@ class VetAdmin(admin.ModelAdmin):
 
 @register(Brand)
 class BrandAdmin(admin.ModelAdmin):
-    # TODO: caledonia API integration!
     list_display = ('logo_small', 'name', 'brand_type', 'created_at', 'updated_at')
     list_display_links = list_display
     search_fields = ('name','brand_type')
@@ -107,6 +109,7 @@ class PetDrugAdmin(admin.ModelAdmin):
 
 
 class MedicalActionInline(admin.TabularInline):
+    form = MedicalActionForm
     model = MedicalAction
     extra = 1
 
