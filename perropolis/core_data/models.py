@@ -68,7 +68,7 @@ class Breed(models.Model):
 
 class Service(models.Model):
     name = models.CharField(_('Name'), max_length=20)
-    details = models.TextField(_('Details'), max_length=256)
+    details = models.CharField(_('Details'), max_length=256)
     is_active = models.BooleanField(_('Is Active'), default=True)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     created_by = models.IntegerField(_('Created By'))
@@ -89,7 +89,7 @@ class Service(models.Model):
 
 class MedicalSpeciality(models.Model):
     name = models.CharField(_('Name'), max_length=50)
-    description = models.TextField(_('Description'), max_length=256, null=True, blank=True)
+    description = models.CharField(_('Description'), max_length=256, null=True, blank=True)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
@@ -114,7 +114,7 @@ class Vet(models.Model):
     has_facility = models.BooleanField(_('Has Facility'), default=False)
     home_visits = models.BooleanField(_('Home Visits'), default=False)
     receive_emergencies = models.BooleanField(_('Receive Emergencies'), default=False)
-    address = models.TextField(_('Address'))
+    address = models.CharField(_('Address'), max_length=128)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
@@ -233,7 +233,7 @@ class MedicalEvent(models.Model):
 class MedicalAction(models.Model):
     event = models.ForeignKey(MedicalEvent, on_delete=models.PROTECT)
     name = models.CharField(_('Name'), max_length=20)
-    description = models.TextField(_('Description'), blank=True, null=True)
+    description = models.CharField(_('Description'), max_length=256, blank=True, null=True)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 

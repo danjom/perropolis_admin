@@ -27,7 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-AUTH_USER_MODEL = 'custom_users.CustomUser'
+AUTH_USER_MODEL = 'admin_user.User'
 
 # Application definition
 
@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'custom_users',
+    'admin_user',
     'core_data',
 ]
 
@@ -107,7 +107,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
 # LANGUAGE_CODE = 'es'
-LANGUAGE_CODE = 'ka'
+LANGUAGE_CODE = 'en'
 
 TIME_ZONE = 'America/Costa_Rica'
 
