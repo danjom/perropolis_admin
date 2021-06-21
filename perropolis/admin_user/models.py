@@ -5,7 +5,7 @@ from core_data.models import Country
 
 
 class User(AbstractUser):
-    country = models.ForeignKey(Country, on_delete=models.PROTECT)
+    country = models.ForeignKey(Country, null=True, on_delete=models.PROTECT)
     name = models.CharField(_('Name'), max_length=20)
     phone_number = models.CharField(_('Phone Number'), max_length=24, null=True, blank=True)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
