@@ -80,13 +80,13 @@ class BrandAdmin(GuardedModelAdmin):
 
     def save_model(self,  request, obj, form, change):
         if 'logo_url' in form.changed_data:
-            brand_logo = Brand.objects.values_list('logo_url', flat=True).get(pk=obj.pk)
+            brand_logo = Brand.objects.values_list('logo_url', flat=True).filter(pk=obj.pk).first()
             if brand_logo is not None:
                 Brand.delete_logo_from_cloudnary(brand_logo.public_id)
         super().save_model(request, obj, form, change)
 
     def delete_model(self, request, obj):
-        brand_logo = Brand.objects.values_list('logo_url', flat=True).get(pk=obj.pk)
+        brand_logo = Brand.objects.values_list('logo_url', flat=True).filter(pk=obj.pk).first()
         if brand_logo is not None:
             Brand.delete_logo_from_cloudnary(brand_logo.public_id)
         super().delete_model(request, obj)

@@ -179,7 +179,8 @@ class Brand(models.Model):
         except AttributeError:
             return 'No Logo'
 
-    logo.short_description = logo_small.short_description = _('Logo')
+    logo_small.short_description = _('Logo')
+    logo.short_description = _('Logo preview')
     logo.allow_tags = logo_small.allow_tags = True
 
     @staticmethod
