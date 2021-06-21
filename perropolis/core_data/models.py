@@ -18,7 +18,7 @@ class Country(models.Model):
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
 
     def __str__(self):
-        return f'{self.code}-{self.name}'
+        return f'{self.name}'
 
     class Meta:
         verbose_name = _('Country')
@@ -98,7 +98,7 @@ class MedicalSpeciality(models.Model):
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
     def __str__(self):
-        return f'{self.name}-{self.updated_at}'
+        return f'{self.name}'
 
     class Meta:
         verbose_name = _('Medical Speciality')
