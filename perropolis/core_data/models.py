@@ -158,7 +158,7 @@ class VetSpeciality(models.Model):
 class Brand(models.Model):
     name = models.CharField(_('Name'), max_length=30, unique=True)
     logo_url = CloudinaryField('logo', blank=True, null=True,
-                               folder=f'/platform/{settings.CLOUDINARY_WORKING_ENVIRONMENT}/brand_logos/')
+                               folder=f'/platform/{settings.ENVIRONMENT}/brand_logos/')
     # logo_url = models.URLField(_('Logo URL'), blank=True, null=True)
     brand_type = models.IntegerField(_('Brand Type'), choices=constants.BRAND_TYPES)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)

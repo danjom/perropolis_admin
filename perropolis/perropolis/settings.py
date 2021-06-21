@@ -139,12 +139,13 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'dev')
 
 # Algolia Settings
 ALGOLIA = {
     'APPLICATION_ID': os.getenv('ALGOLIA_APPLICATION_ID', None),
     'API_KEY': os.getenv('ALGOLIA_API_KEY', None),
-    'INDEX_PREFIX': os.getenv('ALGOLIA_INDEX_PREFIX', 'dev'),
+    'INDEX_PREFIX': ENVIRONMENT,
     'AUTO_INDEXING': True,
 }
 
@@ -154,9 +155,6 @@ CLOUDINARY = {
   'api_key':  os.getenv('CLOUDINARY_API_KEY', None),
   'api_secret':  os.getenv('CLOUDINARY_API_SECRET', None),
 }
-
-CLOUDINARY_WORKING_ENVIRONMENT = os.getenv('CLOUDINARY_WORKING_ENVIRONMENT', 'dev')
-
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend', # default
