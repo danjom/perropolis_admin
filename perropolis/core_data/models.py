@@ -51,7 +51,6 @@ class Breed(models.Model):
     name = models.CharField(_('Name'), max_length=30)
     life_expectancy = models.DecimalField(_('Life Expectancy'), max_digits=3, decimal_places=1,
                                           validators=[MaxValueValidator(30), MinValueValidator(1)])
-    # size = models.IntegerField(_('Size'), validators=[MaxValueValidator(99), MinValueValidator(0)])
     size = models.IntegerField(choices=constants.ANIMAL_SIZES)
     health_score = models.DecimalField(_('Healt Score'), max_digits=3, decimal_places=1,
                                        validators=[MaxValueValidator(99), MinValueValidator(0)])
@@ -160,7 +159,6 @@ class Brand(models.Model):
     name = models.CharField(_('Name'), max_length=30, unique=True)
     logo_url = CloudinaryField('logo', blank=True, null=True,
                                folder=f'/platform/{settings.ENVIRONMENT}/brand_logos/')
-    # logo_url = models.URLField(_('Logo URL'), blank=True, null=True)
     brand_type = models.IntegerField(_('Brand Type'), choices=constants.BRAND_TYPES)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
