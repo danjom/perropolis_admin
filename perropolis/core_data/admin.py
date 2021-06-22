@@ -1,4 +1,5 @@
 from django.contrib.admin import register
+from django.contrib.admin.widgets import AdminFileWidget
 from guardian.admin import GuardedModelAdmin
 
 from core_data.forms import MedicalSpecialityForm, ServiceForm, MedicalActionForm
@@ -73,6 +74,10 @@ class VetAdmin(GuardedModelAdmin):
 
 @register(Brand)
 class BrandAdmin(GuardedModelAdmin):
+    formfield_overrides = {
+        CloudinaryField: {'widget': AdminFileWidget},
+    }
+
     list_display = ('logo_small', 'name', 'brand_type', 'created_at', 'updated_at')
     list_display_links = list_display
     search_fields = ('name','brand_type')
