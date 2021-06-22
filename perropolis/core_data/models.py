@@ -68,6 +68,7 @@ class Breed(models.Model):
         indexes = [
             models.Index(fields=['species_id', 'name'], name='ix_breed_name'),
         ]
+        unique_together = ['name', 'species_id']
 
 
 class Service(models.Model):
@@ -165,7 +166,7 @@ class Brand(models.Model):
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
     def __str__(self):
-        return f'{self.name}-{self.brand_type}'
+        return f'{self.name}-{self.get_brand_type_display()}'
 
     def logo_small(self):
         try:
@@ -175,7 +176,7 @@ class Brand(models.Model):
 
     def logo(self):
         try:
-            return mark_safe(self.logo_url.image())
+            return mark_safe(self.logo_url.image(height=100))
         except AttributeError:
             return 'No Logo'
 
@@ -209,7 +210,7 @@ class PetFood(models.Model):
 
     class Meta:
         verbose_name = _('Pet Food')
-        verbose_name_plural = _('Pet fods')
+        verbose_name_plural = _('Pet Foods')
         db_table = 'pet_foods'
         indexes = [
             models.Index(fields=['brand_id', 'name'], name='ix_food_name'),
