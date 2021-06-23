@@ -20,7 +20,7 @@ class SpecieIndex(AlgoliaIndex):
 
 @register(Breed)
 class BreedIndex(AlgoliaIndex):
-    fields = ('id', 'name', 'updated_at')
+    fields = ('id', 'name', 'species_id', 'updated_at')
     index_name = 'breeds'
 
 
