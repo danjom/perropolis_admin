@@ -80,7 +80,7 @@ class Service(models.Model):
     updated_by = models.IntegerField(_('Updated By'))
 
     def __str__(self):
-        return f'{self.name}-{self.is_active}'
+        return f'{self.name}'
 
     class Meta:
         verbose_name = _('Service')
@@ -123,7 +123,7 @@ class Vet(models.Model):
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
     def __str__(self):
-        return f'{self.name}-{self.country.name}'
+        return f'{self.name} - {self.license_code}'
 
     class Meta:
         verbose_name = _('Vet')
@@ -143,7 +143,7 @@ class VetSpeciality(models.Model):
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
     def __str__(self):
-        return f'{self.vet.name}-{self.speciality.name}'
+        return f'{self.vet.name} - {self.speciality.name}'
 
     class Meta:
         verbose_name = _('Vet Speciality')
@@ -164,7 +164,7 @@ class Brand(models.Model):
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
     def __str__(self):
-        return f'{self.name}-{self.get_brand_type_display()}'
+        return f'{self.name} - {self.get_brand_type_display()}'
 
     def logo_small(self):
         try:
@@ -204,7 +204,7 @@ class PetFood(models.Model):
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
     def __str__(self):
-        return f'{self.name}-{self.brand.name}'
+        return f'{self.name} - {self.brand.name}'
 
     class Meta:
         verbose_name = _('Pet Food')
@@ -228,7 +228,7 @@ class PetDrug(models.Model):
     updated_by = models.IntegerField(_('Updated By'))
 
     def __str__(self):
-        return f'{self.name}-{self.drug_type}'
+        return f'{self.name} - {self.brand.name}'
 
     class Meta:
         verbose_name = _('Pet Drug')
