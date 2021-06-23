@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -27,20 +27,31 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-AUTH_USER_MODEL = 'custom_users.CustomUser'
+AUTH_USER_MODEL = 'admin_user.User'
 
 # Application definition
 
-INSTALLED_APPS = [
+DJANGO_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'custom_users',
-    'application',
 ]
+
+THIRD_PARTY_APPS = [
+    'guardian',
+    'algoliasearch_django',
+    'cloudinary',
+]
+
+OUR_APPS = [
+    'admin_user',
+    'core_data',
+]
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + OUR_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -106,7 +117,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'es'
+# LANGUAGE_CODE = 'es'
+LANGUAGE_CODE = 'en'
 
 TIME_ZONE = 'America/Costa_Rica'
 
@@ -126,3 +138,25 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'dev')
+
+# Algolia Settings
+ALGOLIA = {
+    'APPLICATION_ID': os.getenv('ALGOLIA_APPLICATION_ID', None),
+    'API_KEY': os.getenv('ALGOLIA_API_KEY', None),
+    'INDEX_PREFIX': ENVIRONMENT,
+    'AUTO_INDEXING': True,
+}
+
+# Cloudinary Settings
+CLOUDINARY = {
+  'cloud_name': os.getenv('CLOUDINARY_CLOUD_NAME', None),
+  'api_key':  os.getenv('CLOUDINARY_API_KEY', None),
+  'api_secret':  os.getenv('CLOUDINARY_API_SECRET', None),
+}
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend', # default
+    'guardian.backends.ObjectPermissionBackend',
+)
