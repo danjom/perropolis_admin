@@ -49,6 +49,7 @@ THIRD_PARTY_APPS = [
 OUR_APPS = [
     'admin_user',
     'core_data',
+    'business_locations',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + OUR_APPS
