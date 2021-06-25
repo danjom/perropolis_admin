@@ -10,3 +10,6 @@ class User(AbstractUser):
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
     is_blocked = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.get_full_name() or self.get_username()
