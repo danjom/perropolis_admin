@@ -13,26 +13,12 @@ class OpenScheduleInline(admin.TabularInline):
     extra = 1
     readonly_fields = ('created_by', 'updated_by')
 
-    def save_model(self, request, obj, form, change):
-        user = request.user
-        if not change:
-            obj.created_by_id = user.pk
-        obj.updated_by_id = user.pk
-        super().save_model(request, obj, form, change)
-
 
 class HotelRoomInline(admin.TabularInline):
     form = HotelRoomForm
     model = HotelRoom
     extra = 1
     readonly_fields = ('created_by', 'updated_by')
-
-    def save_model(self, request, obj, form, change):
-        user = request.user
-        if not change:
-            obj.created_by_id = user.pk
-        obj.updated_by_id = user.pk
-        super().save_model(request, obj, form, change)
 
 
 @register(Location)
@@ -54,17 +40,21 @@ class LocationAdmin(admin.ModelAdmin):
             obj.created_by_id = user.pk
 
         obj.updated_by_id = user.pk
-
-        if getattr(obj, 'openschedule', None) is not None:
-            if obj.openschedule.pk is None:
-                obj.openschedule.created_by_id = user.pk
-            obj.openschedule.updated_by_id = user.pk
-        if getattr(obj, 'hotelroom', None) is not None:
-            if obj.hotelroom.pk is None:
-                obj.hotelroom.created_by_id = user.pk
-            obj.hotelroom.updated_by_id = user.pk
-
         super().save_model(request, obj, form, change)
+
+    def save_formset(self, request, form, formset, change):
+        """
+        Given an inline formset save it to the database.
+        """
+        instances = formset.save(commit=False)
+        for obj in formset.deleted_objects:
+            obj.delete()
+        for instance in instances:
+            if instance.pk is None:
+                instance.created_by = request.user
+            instance.updated_by = request.user
+            instance.save()
+        formset.save_m2m()
 
 
 @register(Employee)
@@ -124,6 +114,20 @@ class LocationServiceAdmin(admin.ModelAdmin):
         obj.updated_by_id = user.pk
 
         super().save_model(request, obj, form, change)
+
+    def save_formset(self, request, form, formset, change):
+        """
+        Given an inline formset save it to the database.
+        """
+        instances = formset.save(commit=False)
+        for obj in formset.deleted_objects:
+            obj.delete()
+        for instance in instances:
+            if instance.pk is None:
+                instance.created_by = request.user
+            instance.updated_by = request.user
+            instance.save()
+        formset.save_m2m()
 
 
 @register(Pricing)
