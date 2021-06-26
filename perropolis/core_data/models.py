@@ -75,9 +75,9 @@ class Service(models.Model):
     details = models.CharField(_('Details'), max_length=256)
     is_active = models.BooleanField(_('Is Active'), default=True)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
-    created_by = models.ForeignKey('admin_user.User', on_delete=models.CASCADE, related_name='created_services')
+    created_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='created_services')
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
-    updated_by = models.ForeignKey('admin_user.User', on_delete=models.CASCADE, related_name='updated_services')
+    updated_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='updated_services')
 
 
     def __str__(self):
@@ -224,9 +224,9 @@ class PetDrug(models.Model):
     admin_created = models.BooleanField(_('Admin Created'), default=False)
     admin_updated = models.BooleanField(_('Admin Updated'), default=False)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
-    created_by = models.ForeignKey('admin_user.User', on_delete=models.CASCADE, related_name='created_pet_drugs')
+    created_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='created_pet_drugs')
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
-    updated_by = models.ForeignKey('admin_user.User', on_delete=models.CASCADE, related_name='updated_pet_drugs')
+    updated_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='updated_pet_drugs')
 
     def __str__(self):
         return f'{self.name} - {self.brand.name}'

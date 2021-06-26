@@ -87,3 +87,27 @@ ROOM_TYPES = (
     (REGULAR_SIZE, _('Regular Size')),
     (LARGE_SIZE, _('Large Size')),
 )
+
+
+# Pet Size
+
+PET_SMALL = 1
+PET_MEDIUM = 2
+PET_LARGE = 3
+
+PET_SIZES = (
+    (PET_SMALL, _('Small')),
+    (PET_MEDIUM, _('Medium')),
+    (PET_LARGE, _('Large'))
+)
+
+
+# SERVING_TYPES
+
+SERVING_TYPE_FOOD = 1
+SERVING_TYPE_MEDICATION = 2
+
+SERVING_TYPES = (
+    (SERVING_TYPE_FOOD, _('Food')),
+    (SERVING_TYPE_MEDICATION, _('Medication'))
+)
