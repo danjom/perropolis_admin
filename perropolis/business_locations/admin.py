@@ -88,9 +88,9 @@ class EmployeeAdmin(admin.ModelAdmin):
 
 
 class PricingInline(admin.TabularInline):
-    # TODO: Update created_by and updated_by fileds in background automatically
     model = Pricing
     extra = 1
+    exclude = ('location', 'service')
     readonly_fields = ('created_by', 'updated_by')
 
 
@@ -137,6 +137,7 @@ class PricingAdmin(admin.ModelAdmin):
     search_fields = ['searvice__name', 'location__name', 'specie__name']
     sortable_by = ['service', 'location', 'specie', 'created_at', 'updated_at']
 
+    exclude = ('location', 'service')
     autocomplete_fields = ('service', 'location', 'specie')
 
     readonly_fields = ('created_by', 'updated_by')

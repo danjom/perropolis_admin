@@ -12,7 +12,7 @@ class Location(models.Model):
     rooms_count = models.IntegerField(_('Rooms Count'), validators=[MinValueValidator(1)])
     daycare_capacity = models.IntegerField(_('Daycare Capacity'), validators=[MinValueValidator(1)])
     webcams_enabled = models.BooleanField(_('Webcams Enabled'), default=False)
-    livestream_cost = models.DecimalField(_('Livestream Cost'), max_digits=10, decimal_places=2)
+    livestream_cost = models.DecimalField(_('Livestream Price'), max_digits=10, decimal_places=2)
     phone_number = models.CharField(_('Phone Number'), max_length=24)
     city = models.CharField(_('City'), max_length=30)
     address = models.CharField(_('Address'), max_length=256)
@@ -38,7 +38,7 @@ class Location(models.Model):
 
 
 class OpenSchedule(models.Model):
-    location = models.OneToOneField(Location, on_delete=models.PROTECT)
+    location = models.ForeignKey(Location, on_delete=models.PROTECT)
     start_week_day = models.IntegerField(_('Start Week Day'), choices=WEEK_DAYS)
     end_week_day = models.IntegerField(_('End Week Day'), choices=WEEK_DAYS)
     start_hour = models.IntegerField(_('Start Hour'), validators=[MinValueValidator(0), MaxValueValidator(23)])  # Daniel Please look at this
@@ -47,6 +47,11 @@ class OpenSchedule(models.Model):
     created_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='created_open_schedules')
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
     updated_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='updated_open_schedules')
+
+    def __str__(self):
+        start_week_day = self.get_start_week_day_display()
+        end_week_day = self.get_end_week_day_display()
+        return f'{start_week_day} - {end_week_day} : {self.start_hour} - {self.end_hour}'
 
     class Meta:
         db_table = 'open_schedules'
@@ -58,7 +63,7 @@ class OpenSchedule(models.Model):
 
 
 class HotelRoom(models.Model):
-    location = models.OneToOneField(Location, on_delete=models.PROTECT)
+    location = models.ForeignKey(Location, on_delete=models.PROTECT)
     room_type = models.IntegerField(_('Room Type'), choices=ROOM_TYPES)
     details = models.CharField(_('Details'), max_length=512, blank=True, null=True)
     max_capacity = models.IntegerField(_('Max Capacity'), validators=[MinValueValidator(1), MaxValueValidator(5)])
@@ -67,6 +72,10 @@ class HotelRoom(models.Model):
     created_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='created_hotel_rooms')
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
     updated_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='updated_hotel_rooms')
+
+    def __str__(self):
+        room_type = self.get_room_type_display()
+        return f'{self.location.name} - {room_type}'
 
     class Meta:
         indexes = [
@@ -162,6 +171,12 @@ class Pricing(models.Model):
     def __str__(self):
         return f'{self.location.name} - {self.service.name} - {self.specie.name} - {self.price}'
 
+    def save(self, *args, **kwargs):
+        if self.location_service is not None:
+            self.location_id = self.location_service.location_id
+            self.service_id = self.location_service.service_id
+        super().save(*args, **kwargs)
+
     class Meta:
         db_table = 'pricing'
         verbose_name = _('Pricing')
@@ -170,7 +185,7 @@ class Pricing(models.Model):
         indexes = [
             models.Index(fields=['service_id', 'location_id'], name='ix_pricing_service_location')
         ]
-        unique_together = ['service_id', 'location_id']
+        unique_together = ['service_id', 'location_id', 'specie_id', 'pet_size']
 
 
 class Zone(models.Model):
@@ -186,6 +201,12 @@ class Zone(models.Model):
 
     def __str__(self):
         return f'{self.name}'
+
+    def save(self, *args, **kwargs):
+        if self.location_service is not None:
+            self.location_id = self.location_service.location_id
+            self.service_id = self.location_service.service_id
+        super().save(*args, **kwargs)
 
     class Meta:
         db_table = 'zones'
