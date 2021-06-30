@@ -2,7 +2,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from perropolis.constants import WEEK_DAYS, ROOM_TYPES, PET_SIZES, SERVING_TYPES
+from perropolis.constants import WEEK_DAYS, ROOM_TYPES, ANIMAL_SIZES, SERVING_TYPES
 
 
 class Location(models.Model):
@@ -161,7 +161,7 @@ class Pricing(models.Model):
     service = models.ForeignKey('core_data.Service', on_delete=models.PROTECT)
     location = models.ForeignKey(Location, on_delete=models.PROTECT)
     specie = models.ForeignKey('core_data.Specie', on_delete=models.PROTECT)
-    pet_size = models.IntegerField(_('Pet Size'), choices=PET_SIZES)
+    pet_size = models.IntegerField(_('Pet Size'), choices=ANIMAL_SIZES)
     price = models.DecimalField(_('Price'), max_digits=12, decimal_places=2)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     created_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='created_pricings')

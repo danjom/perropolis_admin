@@ -89,19 +89,6 @@ ROOM_TYPES = (
 )
 
 
-# Pet Size
-
-PET_SMALL = 1
-PET_MEDIUM = 2
-PET_LARGE = 3
-
-PET_SIZES = (
-    (PET_SMALL, _('Small')),
-    (PET_MEDIUM, _('Medium')),
-    (PET_LARGE, _('Large'))
-)
-
-
 # SERVING_TYPES
 
 SERVING_TYPE_FOOD = 1
