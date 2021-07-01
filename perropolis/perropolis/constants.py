@@ -56,3 +56,45 @@ DRUG_TYPES = (
     (SYRUP, _('Syrup')),
     (SUPPOSITORY, _('Suppository')),
 )
+
+
+# Week Days
+MONDAY = 1
+TUESDAY = 2
+WEDNESDAY = 3
+THURSDAY = 4
+FRIDAY = 5
+SATURDAY = 6
+SUNDAY = 7
+
+WEEK_DAYS = (
+    (MONDAY, _('Monday')),
+    (TUESDAY, _('Tuesday')),
+    (WEDNESDAY, _('Wednesday')),
+    (THURSDAY, _('Thursday')),
+    (FRIDAY, _('Friday')),
+    (SATURDAY, _('Saturday')),
+    (SUNDAY, _('Sunday')),
+)
+
+
+# Room Type
+
+REGULAR_SIZE = 1
+LARGE_SIZE = 2
+
+ROOM_TYPES = (
+    (REGULAR_SIZE, _('Regular Size')),
+    (LARGE_SIZE, _('Large Size')),
+)
+
+
+# SERVING_TYPES
+
+SERVING_TYPE_FOOD = 1
+SERVING_TYPE_MEDICATION = 2
+
+SERVING_TYPES = (
+    (SERVING_TYPE_FOOD, _('Food')),
+    (SERVING_TYPE_MEDICATION, _('Medication'))
+)

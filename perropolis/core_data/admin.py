@@ -46,6 +46,15 @@ class ServiceAdmin(GuardedModelAdmin):
     search_fields = ('name',)
     sortable_by = ('name', 'created_at', 'updated_at')
 
+    readonly_fields = ('created_by', 'updated_by')
+
+    def save_model(self, request, obj, form, change):
+        user = request.user
+        if not change:
+            obj.created_by_id = user.pk
+        obj.updated_by_id = user.pk
+        super().save_model(request, obj, form, change)
+
 
 @register(MedicalSpeciality)
 class MedicalSpecialityAdmin(GuardedModelAdmin):
@@ -115,6 +124,19 @@ class PetDrugAdmin(GuardedModelAdmin):
     search_fields = ('name','brand', 'drug_type')
     sortable_by = ('name', 'drug_type', 'brand', 'created_at', 'updated_at')
     autocomplete_fields = ('brand',)
+
+    readonly_fields = ('admin_created', 'admin_updated', 'created_by', 'updated_by')
+
+    def save_model(self, request, obj, form, change):
+        user = request.user
+        if not change:
+            obj.created_by_id = user.pk
+            obj.admin_created = user.is_superuser
+
+        obj.updated_by_id = user.pk
+        obj.admin_updated = user.is_superuser
+
+        super().save_model(request, obj, form, change)
 
 
 class MedicalActionInline(admin.TabularInline):
