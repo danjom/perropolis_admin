@@ -6,6 +6,7 @@ from django.contrib.admin import register
 from django.contrib.admin.widgets import AdminFileWidget
 
 from customers_and_pets.models import Customer, Pet
+from shared.admin import ModelAdminWithSaveOverrideForCreationAndUpdate
 
 
 @register(Customer)
@@ -29,14 +30,14 @@ class CustomerAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
     def delete_model(self, request, obj):
-        profile_pic = Customer.objects.values_list('logo_url', flat=True).filter(pk=obj.pk).first()
+        profile_pic = Customer.objects.values_list('profile_pic_url', flat=True).filter(pk=obj.pk).first()
         if profile_pic is not None:
             Customer.delete_logo_from_cloudnary(profile_pic.public_id)
         super().delete_model(request, obj)
 
 
 @register(Pet)
-class PetAdmin(admin.ModelAdmin):
+class PetAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
     list_display = ['name', 'owner', 'breed', 'birth_date', 'created_at', 'updated_at']
     list_display_links = list_display
     search_fields = ['name', 'owner__name', 'breed_name', 'birth_date']
@@ -53,6 +54,7 @@ class PetAdmin(admin.ModelAdmin):
             profile_pic = Customer.objects.values_list('profile_pic_url', flat=True).filter(pk=obj.pk).first()
             if profile_pic is not None:
                 Customer.delete_profile_pic_from_cloudnary(profile_pic.public_id)
+
         super().save_model(request, obj, form, change)
 
     def delete_model(self, request, obj):
@@ -60,8 +62,12 @@ class PetAdmin(admin.ModelAdmin):
         Override Pet's delete method.
         Delete image from cloudinary when Pet is removed from the system!
         """
-        profile_pic = Customer.objects.values_list('logo_url', flat=True).filter(pk=obj.pk).first()
+        profile_pic = Pet.objects.values_list('profile_pic_url', flat=True).filter(pk=obj.pk).first()
         if profile_pic is not None:
-            Customer.delete_logo_from_cloudnary(profile_pic.public_id)
+            Pet.delete_profile_pic_from_cloudnary(profile_pic.public_id)
         super().delete_model(request, obj)
 
+
+class FeedingAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
+    # TODO: Implement this
+    pass

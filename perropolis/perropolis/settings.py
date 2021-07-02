@@ -42,7 +42,7 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     'guardian',
-    'algoliasearch_django',
+    # 'algoliasearch_django',
     'cloudinary',
 ]
 
@@ -50,6 +50,7 @@ OUR_APPS = [
     'admin_user',
     'core_data',
     'business_locations',
+    'customers_and_pets',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + OUR_APPS
@@ -158,6 +159,6 @@ CLOUDINARY = {
 }
 
 AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend', # default
+    'django.contrib.auth.backends.ModelBackend',  # default
     'guardian.backends.ObjectPermissionBackend',
 )

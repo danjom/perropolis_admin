@@ -3,11 +3,12 @@ import hashlib
 from cloudinary import uploader
 from cloudinary.models import CloudinaryField
 from django.conf import settings
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from perropolis.constants import GENDERS
+from perropolis.constants import GENDERS, MEASURE_UNITS, BELONGING_TYPES
 
 
 class Customer(models.Model):
@@ -21,7 +22,7 @@ class Customer(models.Model):
     profile_pic_url = CloudinaryField('profile_pic', blank=True, null=True,
                                       folder=f'/platform/{settings.ENVIRONMENT}/customer_profile_pics/')
     is_active = models.BooleanField(default=True)
-    is_blacked = models.BooleanField(default=False)
+    is_blocked = models.BooleanField(default=False)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
@@ -65,21 +66,21 @@ class Customer(models.Model):
 
 class Pet(models.Model):
     owner = models.ForeignKey(Customer, on_delete=models.PROTECT)
-    vet_id = models.ForeignKey('core_data.Vet', on_delete=models.PROTECT)
-    breed_id = models.ForeignKey('core_data.Breed', on_delete=models.PROTECT)
-    name = models.CharField(max_length=20)
-    gender = models.IntegerField(choices=GENDERS)
-    birth_date = models.DateTimeField(blank=True, null=True)
+    vet = models.ForeignKey('core_data.Vet', on_delete=models.PROTECT)
+    breed = models.ForeignKey('core_data.Breed', on_delete=models.PROTECT)
+    name = models.CharField(_('Name'), max_length=20)
+    gender = models.IntegerField(_('Gender'), choices=GENDERS)
+    birth_date = models.DateTimeField(_('Birth Date'), blank=True, null=True)
     profile_pic_url = CloudinaryField('profile_pic', blank=True, null=True,
                                       folder=f'/platform/{settings.ENVIRONMENT}/pet_profile_pics/')
-    castrated = models.BooleanField()
-    last_service = models.DateTimeField(blank=True, null=True)
+    castrated = models.BooleanField(_('Castrated'))
+    last_service = models.DateTimeField(_('Last Service'), blank=True, null=True)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     created_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='created_pets')
-    admin_created = models.BooleanField()
+    admin_created = models.BooleanField(_('Admin Created'))
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
     updated_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='updated_pets')
-    admin_updated = models.BooleanField()
+    admin_updated = models.BooleanField(_('Admin Updated'))
 
     def __str__(self):
         return f'{self.name} - {self.owner.name}'
@@ -113,4 +114,87 @@ class Pet(models.Model):
 
         indexes = [
             models.Index(fields=['name'], name='ix_pet_name')
+        ]
+
+
+class PetFeeding(models.Model):
+    pet = models.ForeignKey(Pet, on_delete=models.PROTECT)
+    food = models.ForeignKey('core_data.PetFood', on_delete=models.PROTECT)
+    times_per_day = models.IntegerField(_('Times Per Day'), validators=[MinValueValidator(1), MaxValueValidator(10)])
+    food_portion = models.DecimalField(_('Food Portion'), max_digits=6, decimal_places=2)
+    measure_unit = models.IntegerField(_('Measure Unit'), choices=MEASURE_UNITS)
+    is_active = models.BooleanField(_('Is Active'), default=True)
+    details = models.CharField(_('Details'), max_length=512, blank=True, null=True)
+    created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
+    created_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='created_pet_feedings')
+    admin_created = models.BooleanField(_('Admin Created'))
+    updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
+    updated_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='updated_pet_feedings')
+    admin_updated = models.BooleanField(_('Admin Updated'))
+
+    def __str__(self):
+        return f'{self.pet.name} - {self.food.name}'
+
+    class Meta:
+        db_table = 'pet_feedings'
+        verbose_name = _('Pet Feeding')
+        verbose_name_plural = _('Pet Feedings')
+
+        indexes = [
+            models.Index(fields=['pet_id', 'food_id'], name='ix_pet_feed')
+        ]
+        unique_together = ['pet_id', 'food_id']
+
+
+class PetMedication(models.Model):
+    pet = models.ForeignKey(Pet, on_delete=models.PROTECT)
+    drug = models.ForeignKey('core_data.PetDrug', on_delete=models.PROTECT)
+    dose = models.DecimalField(max_digits=6, decimal_places=2)
+    measure_unit = models.IntegerField(choices=MEASURE_UNITS)
+    is_active = models.BooleanField(default=True)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    lifetime_required = models.BooleanField(default=False)
+    details = models.CharField(max_length=512, blank=True, null=True)
+    created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
+    created_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='created_pet_medications')
+    admin_created = models.BooleanField()
+    updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
+    updated_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='updated_pet_medications')
+    admin_updated = models.BooleanField()
+
+    def __str__(self):
+        return f'{self.pet.name} - {self.drug.name}'
+
+    class Meta:
+        db_table = 'pet_medications'
+        verbose_name = _('Pet Medication')
+        verbose_name_plural = _('Pet Medications')
+
+        indexes = [
+            models.Index(fields=['pet_id', 'drug_id'], name='ix_pet_drug')
+        ]
+        unique_together = ['pet_id', 'drug_id']
+
+
+class PetBelonging(models.Model):
+    pet = models.ForeignKey(Pet, on_delete=models.PROTECT)
+    name = models.CharField(max_length=20)
+    description = models.CharField(max_length=256, blank=True, null=True)
+    belongings_type = models.IntegerField(choices=BELONGING_TYPES)
+    favorite = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
+
+    def __str__(self):
+        return f'{self.name} - {self.pet.name}'
+
+    class Meta:
+        db_table = 'pet_belongings'
+        verbose_name = _('Pet Belonging')
+        verbose_name_plural = _('Pet Belongings')
+
+        indexes = [
+            models.Index(fields=['pet_id', 'name'], name='ix_belonging_name')
         ]

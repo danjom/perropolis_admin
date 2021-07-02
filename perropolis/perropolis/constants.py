@@ -109,3 +109,32 @@ GENDERS = (
     (FEMALE, _('Female')),
     (MALE, _('Male')),
 )
+
+# Measure Units
+CANS = 1
+UNITS = 2
+GRAMS = 3
+POUNDS = 4
+
+MEASURE_UNITS = (
+    (CANS, _('Cans')),
+    (UNITS, _('Units')),
+    (GRAMS, _('Grams')),
+    (POUNDS, _('Pounds')),
+)
+
+
+# Belonging types
+TOYS = 1
+CLOTHES = 2
+FOOD = 3
+DRUGS = 4
+UTENSILS = 5
+
+BELONGING_TYPES = (
+    (TOYS, _('Toys')),
+    (CLOTHES, _('Clothes')),
+    (FOOD, _('Food')),
+    (DRUGS, _('Drugs')),
+    (UTENSILS, _('Utensils')),
+)
