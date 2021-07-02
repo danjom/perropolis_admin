@@ -98,3 +98,14 @@ SERVING_TYPES = (
     (SERVING_TYPE_FOOD, _('Food')),
     (SERVING_TYPE_MEDICATION, _('Medication'))
 )
+
+
+# Genders
+
+FEMALE = 1
+MALE = 2
+
+GENDERS = (
+    (FEMALE, _('Female')),
+    (MALE, _('Male')),
+)
