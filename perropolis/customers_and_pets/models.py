@@ -68,7 +68,7 @@ class Customer(models.Model):
 
 
 class Pet(models.Model):
-    owner = models.ForeignKey(Customer, on_delete=models.PROTECT)
+    # owner = models.ForeignKey(Customer, on_delete=models.PROTECT)
     vet = models.ForeignKey('core_data.Vet', on_delete=models.PROTECT)
     breed = models.ForeignKey('core_data.Breed', on_delete=models.PROTECT)
     name = models.CharField(_('Name'), max_length=20)
@@ -86,7 +86,7 @@ class Pet(models.Model):
     admin_updated = models.BooleanField(_('Admin Updated'))
 
     def __str__(self):
-        return f'{self.name} - {self.owner.name}'
+        return f'{self.name}'
 
     def profile_pic_small(self):
         try:
@@ -118,6 +118,30 @@ class Pet(models.Model):
         indexes = [
             models.Index(fields=['name'], name='ix_pet_name')
         ]
+
+
+class UserPet(models.Model):
+    user = models.ForeignKey(Customer, on_delete=models.PROTECT)
+    pet = models.ForeignKey(Pet, on_delete=models.PROTECT)
+    linked = models.BooleanField(default=False)
+    created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
+    created_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='created_user_pets')
+    admin_created = models.BooleanField(_('Admin Created'))
+    updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
+    updated_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='updated_user_pets')
+    admin_updated = models.BooleanField(_('Admin Updated'))
+
+    def __str__(self):
+        return f'{self.user.name} - {self.pet.name}'
+
+    class Meta:
+        db_table = 'users_pets'
+        verbose_name = _('User Pet')
+        verbose_name_plural = _('Users Pets')
+        indexes = [
+            models.Index(fields=['user_id', 'pet_id'], name='ix_user_pets')
+        ]
+        unique_together = ['user_id', 'pet_id']
 
 
 class PetFeeding(models.Model):

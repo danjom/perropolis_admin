@@ -6,7 +6,7 @@ from django.contrib.admin import register
 from django.contrib.admin.widgets import AdminFileWidget
 
 from customers_and_pets.models import Customer, Pet, PetImage, PetVideo, PetFeeding, PetMedication, PetBelonging, \
-    PetMedicalRecords
+    PetMedicalRecords, UserPet
 from shared.admin import ModelAdminWithSaveOverrideForCreationAndUpdate
 
 
@@ -72,16 +72,23 @@ class PetMedicalRecordsInline(admin.TabularInline):
     readonly_fields = ('created_by', 'admin_created', 'updated_by', 'admin_updated')
 
 
+class UserPetInline(admin.TabularInline):
+    model = UserPet
+    extra = 1
+    readonly_fields = ('created_by', 'admin_created', 'updated_by', 'admin_updated')
+
+
 @register(Pet)
 class PetAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
-    list_display = ['name', 'owner', 'breed', 'birth_date', 'created_at', 'updated_at']
+    list_display = ['name', 'breed', 'birth_date', 'created_at', 'updated_at']
     list_display_links = list_display
-    search_fields = ['name', 'owner__name', 'breed_name', 'birth_date']
-    sortable_by = ['name', 'owner', 'breed', 'birth_date', 'created_at']
+    search_fields = ['name', 'breed_name', 'birth_date']
+    sortable_by = ['name', 'breed', 'birth_date', 'created_at']
 
     readonly_fields = ('profile_pic',)
 
-    inlines = [PetFeedingInline, PetMedicationInline, PetBelongingInline, PetMedicalRecordsInline, PetImageInline]
+    inlines = [PetFeedingInline, PetMedicationInline, PetBelongingInline, PetMedicalRecordsInline, PetImageInline,
+               UserPetInline]
 
     def save_model(self,  request, obj, form, change):
         """
