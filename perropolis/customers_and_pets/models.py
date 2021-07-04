@@ -26,6 +26,9 @@ class Customer(models.Model):
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
+    def __str__(self):
+        return f'{self.name}'
+
     def profile_pic_small(self):
         try:
             return mark_safe(self.profile_pic_url.image(width=60, height=60))
@@ -262,6 +265,12 @@ class PetImage(models.Model):
         self.version = self.url.version
         super().save(*args, **kwargs)
 
+    def delete(self, using=None, keep_parents=False):
+        public_id = getattr(self.url, 'public_id', None)
+        super().delete(using, keep_parents)
+        if public_id:
+            self.delete_image_from_cloudnary(public_id=public_id)
+
     def __str__(self):
         return f'{self.pet.name} - {self.get_reference_type_display()} - {self.version}'
 
@@ -285,10 +294,22 @@ class PetVideo(models.Model):
     def __str__(self):
         return f'{self.pet.name} - {self.name} - {self.get_reference_type_display()} - {self.version}'
 
+    @staticmethod
+    def delete_video_from_cloudnary(public_id=None):
+        if public_id is None:
+            return
+        uploader.destroy(public_id, invalidate=True)
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.version = self.url.version
         super().save(*args, **kwargs)
+
+    def delete(self, using=None, keep_parents=False):
+        public_id = getattr(self.url, 'public_id', None)
+        super().delete(using, keep_parents)
+        if public_id:
+            self.delete_video_from_cloudnary(public_id=public_id)
 
     class Meta:
         db_table = 'pet_videos'

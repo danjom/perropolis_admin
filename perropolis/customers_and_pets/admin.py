@@ -5,7 +5,8 @@ from django.contrib import admin
 from django.contrib.admin import register
 from django.contrib.admin.widgets import AdminFileWidget
 
-from customers_and_pets.models import Customer, Pet, PetImage, PetVideo
+from customers_and_pets.models import Customer, Pet, PetImage, PetVideo, PetFeeding, PetMedication, PetBelonging, \
+    PetMedicalRecords
 from shared.admin import ModelAdminWithSaveOverrideForCreationAndUpdate
 
 
@@ -36,6 +37,41 @@ class CustomerAdmin(admin.ModelAdmin):
         super().delete_model(request, obj)
 
 
+class PetFeedingInline(admin.TabularInline):
+    model = PetFeeding
+    extra = 1
+    readonly_fields = ('created_by', 'admin_created', 'updated_by', 'admin_updated')
+
+
+class PetMedicationInline(admin.TabularInline):
+    model = PetMedication
+    extra = 1
+    readonly_fields = ('created_by', 'admin_created', 'updated_by', 'admin_updated')
+
+
+class PetBelongingInline(admin.TabularInline):
+    model = PetBelonging
+    extra = 1
+
+
+class PetImageInline(admin.TabularInline):
+    model = PetImage
+    readonly_fields = ('version', 'image_small')
+    extra = 1
+
+
+class PetVideoInline(admin.TabularInline):
+    model = PetVideo
+    readonly_fields = ('version',)
+    extra = 1
+
+
+class PetMedicalRecordsInline(admin.TabularInline):
+    model = PetMedicalRecords
+    extra = 1
+    readonly_fields = ('created_by', 'admin_created', 'updated_by', 'admin_updated')
+
+
 @register(Pet)
 class PetAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
     list_display = ['name', 'owner', 'breed', 'birth_date', 'created_at', 'updated_at']
@@ -44,6 +80,8 @@ class PetAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
     sortable_by = ['name', 'owner', 'breed', 'birth_date', 'created_at']
 
     readonly_fields = ('profile_pic',)
+
+    inlines = [PetFeedingInline, PetMedicationInline, PetBelongingInline, PetMedicalRecordsInline, PetImageInline]
 
     def save_model(self,  request, obj, form, change):
         """
@@ -67,10 +105,21 @@ class PetAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
             Pet.delete_profile_pic_from_cloudnary(profile_pic.public_id)
         super().delete_model(request, obj)
 
-
-class FeedingAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
-    # TODO: Implement this
-    pass
+    def save_formset(self, request, form, formset, change):
+        """
+        Given an inline formset save it to the database.
+        """
+        instances = formset.save(commit=False)
+        for obj in formset.deleted_objects:
+            obj.delete()
+        for instance in instances:
+            if instance.pk is None:
+                instance.created_by = request.user
+                instance.admin_created = request.user.is_superuser
+            instance.updated_by = request.user
+            instance.admin_updated = request.user.is_superuser
+            instance.save()
+        formset.save_m2m()
 
 
 @register(PetImage)
@@ -91,3 +140,9 @@ class PetVideoAdmin(admin.ModelAdmin):
     sortable_by = ['name', 'pet', 'created_at']
 
     readonly_fields = ('version',)
+
+    def delete_model(self, request, obj):
+        video = Customer.objects.values_list('url', flat=True).filter(pk=obj.pk).first()
+        if video is not None:
+            Customer.delete_video_from_cloudnary(video.public_id)
+        super().delete_model(request, obj)
