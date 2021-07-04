@@ -138,3 +138,16 @@ BELONGING_TYPES = (
     (DRUGS, _('Drugs')),
     (UTENSILS, _('Utensils')),
 )
+
+
+# Image Types
+
+MEDICAL_RECORD = 1
+PET_PROFILE = 2
+PET_ACTIVITY = 3
+
+IMAGE_TYPES = (
+    (MEDICAL_RECORD, _('Medical Record')),
+    (PET_PROFILE, _('Pet Profule')),
+    (PET_ACTIVITY, _('Pet Activity'))
+)

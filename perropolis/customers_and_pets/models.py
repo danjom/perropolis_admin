@@ -8,7 +8,7 @@ from django.db import models
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from perropolis.constants import GENDERS, MEASURE_UNITS, BELONGING_TYPES
+from perropolis.constants import GENDERS, MEASURE_UNITS, BELONGING_TYPES, IMAGE_TYPES
 
 
 class Customer(models.Model):
@@ -151,17 +151,17 @@ class PetMedication(models.Model):
     drug = models.ForeignKey('core_data.PetDrug', on_delete=models.PROTECT)
     dose = models.DecimalField(max_digits=6, decimal_places=2)
     measure_unit = models.IntegerField(choices=MEASURE_UNITS)
-    is_active = models.BooleanField(default=True)
-    start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
-    lifetime_required = models.BooleanField(default=False)
-    details = models.CharField(max_length=512, blank=True, null=True)
+    is_active = models.BooleanField(_('Is Active'), default=True)
+    start_date = models.DateTimeField(_('Start Date'))
+    end_date = models.DateTimeField(_('End Date'))
+    lifetime_required = models.BooleanField(_('Lifetime Required'), default=False)
+    details = models.CharField(_('Details'), max_length=512, blank=True, null=True)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     created_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='created_pet_medications')
-    admin_created = models.BooleanField()
+    admin_created = models.BooleanField(_('Admin Created'))
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
     updated_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='updated_pet_medications')
-    admin_updated = models.BooleanField()
+    admin_updated = models.BooleanField(_('Admin Updated'))
 
     def __str__(self):
         return f'{self.pet.name} - {self.drug.name}'
@@ -179,11 +179,10 @@ class PetMedication(models.Model):
 
 class PetBelonging(models.Model):
     pet = models.ForeignKey(Pet, on_delete=models.PROTECT)
-    name = models.CharField(max_length=20)
-    description = models.CharField(max_length=256, blank=True, null=True)
-    belongings_type = models.IntegerField(choices=BELONGING_TYPES)
-    favorite = models.BooleanField(default=False)
-
+    name = models.CharField(_('Name'), max_length=20)
+    description = models.CharField(_('Description'), max_length=256, blank=True, null=True)
+    belongings_type = models.IntegerField(_('Belongigs Type'), choices=BELONGING_TYPES)
+    favorite = models.BooleanField(_('Favorite'), default=False)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
@@ -198,3 +197,100 @@ class PetBelonging(models.Model):
         indexes = [
             models.Index(fields=['pet_id', 'name'], name='ix_belonging_name')
         ]
+
+
+class PetMedicalRecords(models.Model):
+    pet = models.ForeignKey(Pet, on_delete=models.PROTECT)
+    event = models.IntegerField(_('Event ID'))
+    action = models.ForeignKey('core_data.MedicalAction', on_delete=models.PROTECT)
+    event_date = models.DateTimeField(_('Event Date'))
+    details = models.CharField(_('Details'), max_length=512, blank=True, null=True)
+    has_files = models.BooleanField(_('Has Files'), null=True)
+    created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
+    created_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='created_pet_medical_records')
+    admin_created = models.BooleanField(_('Admin Created'))
+    updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
+    updated_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='updated_pet_medical_records')
+    admin_updated = models.BooleanField(_('Admin Updated'))
+
+    def __str__(self):
+        return f'{self.pet.name} - {self.action.name}'
+
+    class Meta:
+        db_table = 'pet_medical_records'
+        verbose_name = _('Pet Medical Record')
+        verbose_name_plural = _('Pet Medical Records')
+        indexes = [
+            models.Index(fields=['pet_id', 'action_id'], name='ix_pet_med_action')
+        ]
+
+
+class PetImage(models.Model):
+    pet = models.ForeignKey(Pet, on_delete=models.PROTECT)
+    url = CloudinaryField('image', folder=f'/platform/{settings.ENVIRONMENT}/images/')
+    version = models.IntegerField(_('Version'), blank=True, null=True)
+    height = models.IntegerField(_('Height'))
+    width = models.IntegerField(_('Width'))
+    reference_type = models.IntegerField(_('Reference Type'), choices=IMAGE_TYPES)
+    reference_id = models.IntegerField(_('Reference ID'))
+    created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
+
+    def image_small(self):
+        try:
+            return mark_safe(self.url.image(width=60, height=60))
+        except AttributeError:
+            return 'No Image'
+
+    def image(self):
+        try:
+            return mark_safe(self.url.image(height=100))
+        except AttributeError:
+            return 'No Image'
+
+    image_small.short_description = _('Image')
+    image.short_description = _('Image Preview')
+    image.allow_tags = image_small.allow_tags = True
+
+    @staticmethod
+    def delete_image_from_cloudnary(public_id=None):
+        if public_id is None:
+            return
+        uploader.destroy(public_id, invalidate=True)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.version = self.url.version
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f'{self.pet.name} - {self.get_reference_type_display()} - {self.version}'
+
+    class Meta:
+        db_table = 'pet_images'
+        verbose_name = _('Pet Image')
+        verbose_name_plural = _('Pet Images')
+
+
+class PetVideo(models.Model):
+    pet = models.ForeignKey(Pet, on_delete=models.PROTECT)
+    url = CloudinaryField('video', resource_type='video', folder=f'/platform/{settings.ENVIRONMENT}/videos/')
+    name = models.CharField(_('Name'), max_length=20)
+    version = models.IntegerField(_('Version'), blank=True, null=True)
+    height = models.IntegerField(_('Height'))
+    width = models.IntegerField(_('Width'))
+    reference_type = models.IntegerField(_('Reference Type'), choices=IMAGE_TYPES)
+    reference_id = models.IntegerField(_('Reference ID'))
+    created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.pet.name} - {self.name} - {self.get_reference_type_display()} - {self.version}'
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.version = self.url.version
+        super().save(*args, **kwargs)
+
+    class Meta:
+        db_table = 'pet_videos'
+        verbose_name = _('Pet Video')
+        verbose_name_plural = _('Pet Videos')

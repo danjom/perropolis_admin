@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.contrib.admin import register
 from django.contrib.admin.widgets import AdminFileWidget
 
-from customers_and_pets.models import Customer, Pet
+from customers_and_pets.models import Customer, Pet, PetImage, PetVideo
 from shared.admin import ModelAdminWithSaveOverrideForCreationAndUpdate
 
 
@@ -71,3 +71,23 @@ class PetAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
 class FeedingAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
     # TODO: Implement this
     pass
+
+
+@register(PetImage)
+class PetImageAdmin(admin.ModelAdmin):
+    list_display = ['image_small', 'pet', 'created_at']
+    list_display_links = list_display
+    search_fields = ['pet__name']
+    sortable_by = ['pet', 'created_at']
+
+    readonly_fields = ('version', 'image')
+
+
+@register(PetVideo)
+class PetVideoAdmin(admin.ModelAdmin):
+    list_display = ['name', 'pet', 'created_at']
+    list_display_links = list_display
+    search_fields = ['name', 'pet__name']
+    sortable_by = ['name', 'pet', 'created_at']
+
+    readonly_fields = ('version',)
