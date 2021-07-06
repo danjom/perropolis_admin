@@ -15,3 +15,13 @@ class ModelAdminWithSaveOverrideForCreationAndUpdate(admin.ModelAdmin):
         obj.updated_by_id = user.pk
         obj.admin_updated = user.is_superuser
         super().save_model(request, obj, form, change)
+
+
+class ModelAdminChangeDisabled(admin.ModelAdmin):
+    def change_view(self, request, object_id, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['show_save_and_continue'] = False
+        extra_context['show_save'] = False
+        extra_context['show_save_and_add_another'] = False
+
+        return super().change_view(request, object_id, extra_context=extra_context)

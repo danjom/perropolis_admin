@@ -8,7 +8,7 @@ from django.contrib.admin.widgets import AdminFileWidget
 from customers_and_pets.forms import PetFeedingForm, PetMedicationForm, PetBelongingForm, PetMedicalRecordsForm
 from customers_and_pets.models import Customer, Pet, PetImage, PetVideo, PetFeeding, PetMedication, PetBelonging, \
     PetMedicalRecords, UserPet
-from shared.admin import ModelAdminWithSaveOverrideForCreationAndUpdate
+from shared.admin import ModelAdminWithSaveOverrideForCreationAndUpdate, ModelAdminChangeDisabled
 
 
 @register(Customer)
@@ -63,11 +63,17 @@ class PetImageInline(admin.TabularInline):
     readonly_fields = ('version', 'image_small')
     extra = 1
 
+    def has_change_permission(self, request, obj=None):
+        return False
+
 
 class PetVideoInline(admin.TabularInline):
     model = PetVideo
     readonly_fields = ('version',)
     extra = 1
+
+    def has_change_permission(self, request, obj=None):
+        return False
 
 
 class PetMedicalRecordsInline(admin.TabularInline):
@@ -135,7 +141,7 @@ class PetAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
 
 
 @register(PetImage)
-class PetImageAdmin(admin.ModelAdmin):
+class PetImageAdmin(ModelAdminChangeDisabled):
     list_display = ['image_small', 'pet', 'created_at']
     list_display_links = list_display
     search_fields = ['pet__name']
@@ -145,16 +151,10 @@ class PetImageAdmin(admin.ModelAdmin):
 
 
 @register(PetVideo)
-class PetVideoAdmin(admin.ModelAdmin):
+class PetVideoAdmin(ModelAdminChangeDisabled):
     list_display = ['name', 'pet', 'created_at']
     list_display_links = list_display
     search_fields = ['name', 'pet__name']
     sortable_by = ['name', 'pet', 'created_at']
 
     readonly_fields = ('version',)
-
-    def delete_model(self, request, obj):
-        video = Customer.objects.values_list('url', flat=True).filter(pk=obj.pk).first()
-        if video is not None:
-            Customer.delete_video_from_cloudnary(video.public_id)
-        super().delete_model(request, obj)
