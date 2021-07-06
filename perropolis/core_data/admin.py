@@ -152,3 +152,11 @@ class MedicalEventAdmin(GuardedModelAdmin):
     search_fields = ('name',)
     sortable_by = ('name', 'created_at', 'updated_at')
     inlines = (MedicalActionInline,)
+
+
+@register(MedicalAction)
+class MedicalActionAdmin(admin.ModelAdmin):
+    list_display = ['event', 'name', 'created_at', 'updated_at']
+    list_display_links = list_display
+    search_fields = ['event__name', 'name']
+    sortable_by = ['event', 'name', 'created_at', 'updated_at']

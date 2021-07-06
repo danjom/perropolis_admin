@@ -80,7 +80,8 @@ class PetMedicalRecordsInline(admin.TabularInline):
     form = PetMedicalRecordsForm
     model = PetMedicalRecords
     extra = 1
-    readonly_fields = ('created_by', 'admin_created', 'updated_by', 'admin_updated')
+    readonly_fields = ('event', 'created_by', 'admin_created', 'updated_by', 'admin_updated')
+    autocomplete_fields = ('action', )
 
 
 class UserPetInline(admin.TabularInline):
@@ -158,3 +159,44 @@ class PetVideoAdmin(ModelAdminChangeDisabled):
     sortable_by = ['name', 'pet', 'created_at']
 
     readonly_fields = ('version',)
+
+
+@register(PetFeeding)
+class PetFeedingAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
+    list_display = ['pet', 'food', 'times_per_day', 'is_active', 'created_at', 'updated_at']
+    list_display_links = list_display
+    search_fields = ['pet__name', 'food__name']
+    sortable_by = ['pet', 'food', 'is_active', 'created_at', 'updated_at']
+
+    readonly_fields = ('created_by', 'admin_created', 'updated_by', 'admin_updated')
+
+
+@register(PetMedication)
+class PetMedicationAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
+    list_display = ['pet', 'drug', 'dose', 'start_date', 'end_date', 'is_active', 'created_at', 'updated_at']
+    list_display_links = list_display
+    search_fields = ['pet__name', 'drug__name']
+    sortable_by = ['pet', 'drug', 'created_at', 'is_active', 'updated_at']
+
+    readonly_fields = ('created_by', 'admin_created', 'updated_by', 'admin_updated')
+
+
+@register(PetBelonging)
+class PetBelongingAdmin(admin.ModelAdmin):
+    list_display = ['pet', 'name', 'belongings_type', 'favorite', 'created_at', 'updated_at']
+    list_display_links = list_display
+    search_fields = ['pet__name', 'name']
+    sortable_by = ['pet', 'name', 'created_at', 'updated_at']
+
+
+@register(PetMedicalRecords)
+class PetMedicalRecordsAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
+    list_display = ['pet', 'event', 'action', 'event_date', 'created_at', 'updated_at']
+    list_display_links = list_display
+    search_fields = ['pet__name', 'event__name', 'action__name']
+    sortable_by = ['pet', 'event', 'action', 'created_at', 'updated_at']
+
+    readonly_fields = ('created_by', 'admin_created', 'updated_by', 'admin_updated')
+
+
+

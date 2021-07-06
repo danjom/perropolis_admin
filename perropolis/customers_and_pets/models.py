@@ -242,6 +242,11 @@ class PetMedicalRecords(models.Model):
     def __str__(self):
         return f'{self.pet.name} - {self.action.name}'
 
+    def save(self, *args, **kwargs):
+        if self.action is not None:
+            self.event_id = self.action.event_id
+        super().save(*args, **kwargs)
+
     class Meta:
         db_table = 'pet_medical_records'
         verbose_name = _('Pet Medical Record')
