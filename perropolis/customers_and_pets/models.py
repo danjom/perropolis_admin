@@ -12,7 +12,7 @@ from perropolis.constants import GENDERS, MEASURE_UNITS, BELONGING_TYPES, IMAGE_
 
 
 class Customer(models.Model):
-    country = models.ForeignKey
+    country = models.ForeignKey('core_data.Country', on_delete=models.PROTECT)
     name = models.CharField(_('Name'), max_length=20)
     email = models.EmailField(_('Email'))
     email_validated = models.BooleanField(_('Email Validated'), default=False)
