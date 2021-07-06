@@ -85,7 +85,7 @@ class PetAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
     search_fields = ['name', 'breed_name', 'birth_date']
     sortable_by = ['name', 'breed', 'birth_date', 'created_at']
 
-    readonly_fields = ('profile_pic',)
+    readonly_fields = ('created_by', 'admin_created', 'updated_by', 'admin_updated', 'last_service', 'profile_pic')
 
     inlines = [PetFeedingInline, PetMedicationInline, PetBelongingInline, PetMedicalRecordsInline, PetImageInline,
                UserPetInline]

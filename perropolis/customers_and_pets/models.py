@@ -68,16 +68,15 @@ class Customer(models.Model):
 
 
 class Pet(models.Model):
-    # owner = models.ForeignKey(Customer, on_delete=models.PROTECT)
-    vet = models.ForeignKey('core_data.Vet', on_delete=models.PROTECT)
+    vet = models.ForeignKey('core_data.Vet', blank=True, null=True, on_delete=models.PROTECT)
     breed = models.ForeignKey('core_data.Breed', on_delete=models.PROTECT)
     name = models.CharField(_('Name'), max_length=20)
     gender = models.IntegerField(_('Gender'), choices=GENDERS)
-    birth_date = models.DateTimeField(_('Birth Date'), blank=True, null=True)
+    birth_date = models.DateField(_('Birth Date'), blank=True, null=True)
     profile_pic_url = CloudinaryField('profile_pic', blank=True, null=True,
                                       folder=f'/platform/{settings.ENVIRONMENT}/pet_profile_pics/')
     castrated = models.BooleanField(_('Castrated'))
-    last_service = models.DateTimeField(_('Last Service'), blank=True, null=True)
+    last_service = models.DateField(_('Last Service'), blank=True, null=True)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     created_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='created_pets')
     admin_created = models.BooleanField(_('Admin Created'))
