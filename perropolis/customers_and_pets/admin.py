@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.contrib.admin import register
 from django.contrib.admin.widgets import AdminFileWidget
 
+from customers_and_pets.forms import PetFeedingForm, PetMedicationForm, PetBelongingForm, PetMedicalRecordsForm
 from customers_and_pets.models import Customer, Pet, PetImage, PetVideo, PetFeeding, PetMedication, PetBelonging, \
     PetMedicalRecords, UserPet
 from shared.admin import ModelAdminWithSaveOverrideForCreationAndUpdate
@@ -38,18 +39,21 @@ class CustomerAdmin(admin.ModelAdmin):
 
 
 class PetFeedingInline(admin.TabularInline):
+    form = PetFeedingForm
     model = PetFeeding
     extra = 1
     readonly_fields = ('created_by', 'admin_created', 'updated_by', 'admin_updated')
 
 
 class PetMedicationInline(admin.TabularInline):
+    form = PetMedicationForm
     model = PetMedication
     extra = 1
     readonly_fields = ('created_by', 'admin_created', 'updated_by', 'admin_updated')
 
 
 class PetBelongingInline(admin.TabularInline):
+    form = PetBelongingForm
     model = PetBelonging
     extra = 1
 
@@ -67,6 +71,7 @@ class PetVideoInline(admin.TabularInline):
 
 
 class PetMedicalRecordsInline(admin.TabularInline):
+    form = PetMedicalRecordsForm
     model = PetMedicalRecords
     extra = 1
     readonly_fields = ('created_by', 'admin_created', 'updated_by', 'admin_updated')
@@ -88,7 +93,7 @@ class PetAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
     readonly_fields = ('created_by', 'admin_created', 'updated_by', 'admin_updated', 'last_service', 'profile_pic')
 
     inlines = [PetFeedingInline, PetMedicationInline, PetBelongingInline, PetMedicalRecordsInline, PetImageInline,
-               UserPetInline]
+               PetVideoInline, UserPetInline]
 
     def save_model(self,  request, obj, form, change):
         """
