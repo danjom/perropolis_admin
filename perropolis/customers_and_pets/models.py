@@ -227,9 +227,9 @@ class PetBelonging(models.Model):
 
 class PetMedicalRecords(models.Model):
     pet = models.ForeignKey(Pet, on_delete=models.PROTECT)
-    event = models.IntegerField(_('Event ID'))
+    event = models.ForeignKey('core_data.MedicalEvent', on_delete=models.PROTECT)
     action = models.ForeignKey('core_data.MedicalAction', on_delete=models.PROTECT)
-    event_date = models.DateTimeField(_('Event Date'))
+    event_date = models.DateField(_('Event Date'))
     details = models.CharField(_('Details'), max_length=512, blank=True, null=True)
     has_files = models.BooleanField(_('Has Files'), null=True)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
@@ -308,8 +308,6 @@ class PetVideo(models.Model):
     url = CloudinaryField('video', resource_type='video', folder=f'/platform/{settings.ENVIRONMENT}/videos/')
     name = models.CharField(_('Name'), max_length=20)
     version = models.IntegerField(_('Version'), blank=True, null=True)
-    height = models.IntegerField(_('Height'))
-    width = models.IntegerField(_('Width'))
     reference_type = models.IntegerField(_('Reference Type'), choices=IMAGE_TYPES)
     reference_id = models.IntegerField(_('Reference ID'))
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
