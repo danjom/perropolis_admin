@@ -161,6 +161,7 @@ class PetFeedingInline(admin.TabularInline):
     model = PetFeeding
     extra = 1
     readonly_fields = ('created_by', 'admin_created', 'updated_by', 'admin_updated')
+    autocomplete_fields = ['food']
 
 
 class PetMedicationInline(admin.TabularInline):
@@ -168,6 +169,7 @@ class PetMedicationInline(admin.TabularInline):
     model = PetMedication
     extra = 1
     readonly_fields = ('created_by', 'admin_created', 'updated_by', 'admin_updated')
+    autocomplete_fields = ['drug']
 
 
 class PetBelongingInline(admin.TabularInline):
@@ -268,6 +270,8 @@ class PetImageAdmin(ModelAdminChangeDisabled):
 
     readonly_fields = ('version', 'image')
 
+    autocomplete_fields = ['pet']
+
 
 @register(PetVideo)
 class PetVideoAdmin(ModelAdminChangeDisabled):
@@ -277,6 +281,7 @@ class PetVideoAdmin(ModelAdminChangeDisabled):
     sortable_by = ['name', 'pet', 'created_at']
 
     readonly_fields = ('version',)
+    autocomplete_fields = ['pet']
 
 
 @register(PetFeeding)
@@ -287,6 +292,7 @@ class PetFeedingAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
     sortable_by = ['pet', 'food', 'is_active', 'created_at', 'updated_at']
 
     readonly_fields = ('created_by', 'admin_created', 'updated_by', 'admin_updated')
+    autocomplete_fields = ['pet', 'food']
 
 
 @register(PetMedication)
@@ -294,9 +300,10 @@ class PetMedicationAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
     list_display = ['pet', 'drug', 'dose', 'start_date', 'end_date', 'is_active', 'created_at', 'updated_at']
     list_display_links = list_display
     search_fields = ['pet__name', 'drug__name']
-    sortable_by = ['pet', 'drug', 'created_at', 'is_active', 'updated_at']
+    sortable_by = ['pet', 'drug', 'start_date', 'end_date', 'created_at', 'is_active', 'updated_at']
 
     readonly_fields = ('created_by', 'admin_created', 'updated_by', 'admin_updated')
+    autocomplete_fields = ['pet', 'drug']
 
 
 @register(PetBelonging)
@@ -314,7 +321,9 @@ class PetMedicalRecordsAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
     search_fields = ['pet__name', 'event__name', 'action__name']
     sortable_by = ['pet', 'event', 'action', 'created_at', 'updated_at']
 
-    readonly_fields = ('created_by', 'admin_created', 'updated_by', 'admin_updated')
+    readonly_fields = ('event', 'created_by', 'admin_created', 'updated_by', 'admin_updated')
+
+    autocomplete_fields = ['pet', 'action']
 
 
 
