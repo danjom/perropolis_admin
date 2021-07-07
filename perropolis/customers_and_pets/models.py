@@ -3,6 +3,7 @@ import hashlib
 from cloudinary import uploader
 from cloudinary.models import CloudinaryField
 from django.conf import settings
+from django.contrib.auth.hashers import make_password
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils.safestring import mark_safe
@@ -18,13 +19,15 @@ class Customer(models.Model):
     email_validated = models.BooleanField(_('Email Validated'), default=False)
     phone_number = models.CharField(_('Phone Number'), max_length=24, blank=True, null=True)
     phone_validated = models.BooleanField(_('Phone Validated'), default=False)
-    password = models.CharField(max_length=64)
+    password = models.CharField(max_length=128)
     profile_pic_url = CloudinaryField('profile_pic', blank=True, null=True,
                                       folder=f'/platform/{settings.ENVIRONMENT}/customer_profile_pics/')
     is_active = models.BooleanField(default=True)
     is_blocked = models.BooleanField(default=False)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
+
+    _password = None
 
     def __str__(self):
         return f'{self.name}'
@@ -60,11 +63,9 @@ class Customer(models.Model):
             models.Index(fields=['email'], name='ix_user_email')
         ]
 
-    def save(self, *args, **kwargs):
-        if self.pk is None:
-            sha256_hash = hashlib.sha256(self.password.encode('utf-8'))
-            self.password = sha256_hash.hexdigest()
-        super().save(*args, **kwargs)
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
+        self._password = raw_password
 
 
 class Pet(models.Model):

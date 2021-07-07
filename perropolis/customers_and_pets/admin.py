@@ -1,11 +1,19 @@
 from cloudinary.models import CloudinaryField
-from django.contrib import admin
+from django.contrib import admin, messages
 
-# Register your models here.
 from django.contrib.admin import register
+from django.contrib.admin.utils import unquote
 from django.contrib.admin.widgets import AdminFileWidget
+from django.contrib.auth.admin import sensitive_post_parameters_m
+from django.core.exceptions import PermissionDenied
+from django.http import Http404, HttpResponseRedirect
+from django.template.response import TemplateResponse
+from django.urls import path, reverse
+from django.utils.html import escape
+from django.utils.translation import ugettext_lazy as _, gettext
 
-from customers_and_pets.forms import PetFeedingForm, PetMedicationForm, PetBelongingForm, PetMedicalRecordsForm
+from customers_and_pets.forms import PetFeedingForm, PetMedicationForm, PetBelongingForm, PetMedicalRecordsForm, \
+    CustomerCreationForm, CustomerChangeForm, CustomerPasswordChangeForm
 from customers_and_pets.models import Customer, Pet, PetImage, PetVideo, PetFeeding, PetMedication, PetBelonging, \
     PetMedicalRecords, UserPet
 from shared.admin import ModelAdminWithSaveOverrideForCreationAndUpdate, ModelAdminChangeDisabled
@@ -13,6 +21,8 @@ from shared.admin import ModelAdminWithSaveOverrideForCreationAndUpdate, ModelAd
 
 @register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
+    add_form_template = 'admin/auth/user/add_form.html'
+    change_user_password_template = None
     formfield_overrides = {
         CloudinaryField: {'widget': AdminFileWidget},
     }
@@ -22,7 +32,115 @@ class CustomerAdmin(admin.ModelAdmin):
     search_fields = ['name', 'email', 'country__name']
     sortable_by = ['name', 'country', 'created_at', 'updated_at']
 
+    fieldsets = (
+        (None, {'fields': ('name', 'email', 'password', 'country', 'email_validated', 'phone_number',
+                           'phone_validated', 'profile_pic_url', 'is_active', 'is_blocked', 'profile_pic')}),
+    )
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('name', 'email', 'country', 'password1', 'password2'),
+        }),
+    )
+
     readonly_fields = ('profile_pic',)
+
+    form = CustomerChangeForm
+    add_form = CustomerCreationForm
+
+    change_password_form = CustomerPasswordChangeForm
+
+    def get_fieldsets(self, request, obj=None):
+        if not obj:
+            return self.add_fieldsets
+        return super().get_fieldsets(request, obj)
+
+    def get_form(self, request, obj=None, **kwargs):
+        """
+        Use special form during user creation
+        """
+        defaults = {}
+        if obj is None:
+            defaults['form'] = self.add_form
+        defaults.update(kwargs)
+        return super().get_form(request, obj, **defaults)
+
+    def get_urls(self):
+        return [
+            path(
+                '<id>/password/',
+                self.admin_site.admin_view(self.user_change_password),
+                name='auth_user_password_change',
+            ),
+        ] + super().get_urls()
+
+    def response_add(self, request, obj, post_url_continue=None):
+        if '_addanother' not in request.POST and '_popup' not in request.POST:
+            request.POST = request.POST.copy()
+            request.POST['_continue'] = 1
+        return super().response_add(request, obj, post_url_continue)
+
+    @sensitive_post_parameters_m
+    def user_change_password(self, request, id, form_url=''):
+        customer = self.get_object(request, unquote(id))
+        if not self.has_change_permission(request, request.user):
+            raise PermissionDenied
+        if customer is None:
+            raise Http404(_('%(name)s object with primary key %(key)r does not exist.') % {
+                'name': self.model._meta.verbose_name,
+                'key': escape(id),
+            })
+        if request.method == 'POST':
+            form = self.change_password_form(customer, request.POST)
+            if form.is_valid():
+                form.save()
+                change_message = self.construct_change_message(request, form, None)
+                self.log_change(request, customer, change_message)
+                msg = gettext('Password changed successfully.')
+                messages.success(request, msg)
+                return HttpResponseRedirect(
+                    reverse(
+                        '%s:%s_%s_change' % (
+                            self.admin_site.name,
+                            customer._meta.app_label,
+                            customer._meta.model_name,
+                        ),
+                        args=(customer.pk,),
+                    )
+                )
+        else:
+            form = self.change_password_form(customer)
+
+        fieldsets = [(None, {'fields': list(form.base_fields)})]
+        adminForm = admin.helpers.AdminForm(form, fieldsets, {})
+
+        context = {
+            'title': _('Change password: %s') % escape(customer.name),
+            'adminForm': adminForm,
+            'form_url': form_url,
+            'form': form,
+            'is_popup': ('_popup' in request.POST or
+                         '_popup' in request.GET),
+            'add': True,
+            'change': False,
+            'has_delete_permission': False,
+            'has_change_permission': True,
+            'has_absolute_url': False,
+            'opts': self.model._meta,
+            'original': customer,
+            'save_as': False,
+            'show_save': True,
+            **self.admin_site.each_context(request),
+        }
+
+        request.current_app = self.admin_site.name
+
+        return TemplateResponse(
+            request,
+            self.change_user_password_template or
+            'admin/auth/user/change_password.html',
+            context,
+        )
 
     def save_model(self,  request, obj, form, change):
         if 'profile_pic_url' in form.changed_data:
