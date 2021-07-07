@@ -98,3 +98,56 @@ SERVING_TYPES = (
     (SERVING_TYPE_FOOD, _('Food')),
     (SERVING_TYPE_MEDICATION, _('Medication'))
 )
+
+
+# Genders
+
+FEMALE = 1
+MALE = 2
+
+GENDERS = (
+    (FEMALE, _('Female')),
+    (MALE, _('Male')),
+)
+
+# Measure Units
+CANS = 1
+UNITS = 2
+GRAMS = 3
+POUNDS = 4
+
+MEASURE_UNITS = (
+    (CANS, _('Cans')),
+    (UNITS, _('Units')),
+    (GRAMS, _('Grams')),
+    (POUNDS, _('Pounds')),
+)
+
+
+# Belonging types
+TOYS = 1
+CLOTHES = 2
+FOOD = 3
+DRUGS = 4
+UTENSILS = 5
+
+BELONGING_TYPES = (
+    (TOYS, _('Toys')),
+    (CLOTHES, _('Clothes')),
+    (FOOD, _('Food')),
+    (DRUGS, _('Drugs')),
+    (UTENSILS, _('Utensils')),
+)
+
+
+# Image Types
+
+MEDICAL_RECORD = 1
+PET_PROFILE = 2
+PET_ACTIVITY = 3
+
+IMAGE_TYPES = (
+    (MEDICAL_RECORD, _('Medical Record')),
+    (PET_PROFILE, _('Pet Profule')),
+    (PET_ACTIVITY, _('Pet Activity'))
+)

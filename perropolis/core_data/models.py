@@ -266,7 +266,7 @@ class MedicalAction(models.Model):
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
     def __str__(self):
-        return f'{self.name}-{self.event.name}'
+        return f'{self.name} - {self.event.name}'
 
     class Meta:
         verbose_name = _('Medical Action')
