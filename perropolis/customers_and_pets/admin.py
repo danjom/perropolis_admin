@@ -15,7 +15,7 @@ from django.utils.translation import ugettext_lazy as _, gettext
 from customers_and_pets.forms import PetFeedingForm, PetMedicationForm, PetBelongingForm, PetMedicalRecordsForm, \
     CustomerCreationForm, CustomerChangeForm, CustomerPasswordChangeForm
 from customers_and_pets.models import Customer, Pet, PetImage, PetVideo, PetFeeding, PetMedication, PetBelonging, \
-    PetMedicalRecords, UserPet
+    PetMedicalRecords, UserPet, PetMedicationSchedule
 from shared.admin import ModelAdminWithSaveOverrideForCreationAndUpdate, ModelAdminChangeDisabled
 
 
@@ -286,6 +286,7 @@ class PetVideoAdmin(ModelAdminChangeDisabled):
 
 @register(PetFeeding)
 class PetFeedingAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
+    form = PetFeedingForm
     list_display = ['pet', 'food', 'times_per_day', 'is_active', 'created_at', 'updated_at']
     list_display_links = list_display
     search_fields = ['pet__name', 'food__name']
@@ -295,8 +296,16 @@ class PetFeedingAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
     autocomplete_fields = ['pet', 'food']
 
 
+class PetMedicationScheduleInline(admin.TabularInline):
+    model = PetMedicationSchedule
+    extra = 1
+    readonly_fields = ('pet', 'created_by', 'admin_created', 'updated_by', 'admin_updated')
+    autocomplete_fields = ('medication',)
+
+
 @register(PetMedication)
 class PetMedicationAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
+    form = PetMedicationForm
     list_display = ['pet', 'drug', 'dose', 'start_date', 'end_date', 'is_active', 'created_at', 'updated_at']
     list_display_links = list_display
     search_fields = ['pet__name', 'drug__name']
@@ -304,10 +313,28 @@ class PetMedicationAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
 
     readonly_fields = ('created_by', 'admin_created', 'updated_by', 'admin_updated')
     autocomplete_fields = ['pet', 'drug']
+    inlines = [PetMedicationScheduleInline]
+
+    def save_formset(self, request, form, formset, change):
+        """
+        Given an inline formset save it to the database.
+        """
+        instances = formset.save(commit=False)
+        for obj in formset.deleted_objects:
+            obj.delete()
+        for instance in instances:
+            if instance.pk is None:
+                instance.created_by = request.user
+                instance.admin_created = request.user.is_superuser
+            instance.updated_by = request.user
+            instance.admin_updated = request.user.is_superuser
+            instance.save()
+        formset.save_m2m()
 
 
 @register(PetBelonging)
 class PetBelongingAdmin(admin.ModelAdmin):
+    form = PetBelongingForm
     list_display = ['pet', 'name', 'belongings_type', 'favorite', 'created_at', 'updated_at']
     list_display_links = list_display
     search_fields = ['pet__name', 'name']
@@ -316,6 +343,7 @@ class PetBelongingAdmin(admin.ModelAdmin):
 
 @register(PetMedicalRecords)
 class PetMedicalRecordsAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
+    form = PetMedicalRecordsForm
     list_display = ['pet', 'event', 'action', 'event_date', 'created_at', 'updated_at']
     list_display_links = list_display
     search_fields = ['pet__name', 'event__name', 'action__name']

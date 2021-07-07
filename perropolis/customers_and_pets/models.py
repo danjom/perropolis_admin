@@ -204,6 +204,36 @@ class PetMedication(models.Model):
         unique_together = ['pet_id', 'drug_id']
 
 
+class PetMedicationSchedule(models.Model):
+    pet = models.ForeignKey(Pet, on_delete=models.PROTECT)
+    medication = models.ForeignKey(PetMedication, on_delete=models.Model)
+    days_of_week = models.CharField(_('Days of Week'), max_length=10)
+    hour = models.IntegerField(_('Hour'), validators=[MinValueValidator(1), MaxValueValidator(24)])
+    minute = models.IntegerField(_('Minute'), validators=[MinValueValidator(0), MaxValueValidator(59)])
+    created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
+    created_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='created_pet_medication_schedules')
+    admin_created = models.BooleanField(_('Admin Created'))
+    updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
+    updated_by = models.ForeignKey('admin_user.User', on_delete=models.PROTECT, related_name='updated_pet_medication_schedules')
+    admin_updated = models.BooleanField(_('Admin Updated'))
+
+    def __str__(self):
+        return f'{self.days_of_week} {self.hour}:{self.minute}'
+
+    def save(self, *args, **kwargs):
+        if self.medication is not None:
+            self.pet_id = self.medication.pet_id
+        super().save(*args, **kwargs)
+
+    class Meta:
+        db_table = 'pet_medication_schedules'
+        verbose_name = _('Pet Medication Schedule')
+        verbose_name_plural = _('Pet Medication Schedules')
+        indexes = [
+            models.Index(fields=['pet_id'], name='ix_medication_pet')
+        ]
+
+
 class PetBelonging(models.Model):
     pet = models.ForeignKey(Pet, on_delete=models.PROTECT)
     name = models.CharField(_('Name'), max_length=20)
