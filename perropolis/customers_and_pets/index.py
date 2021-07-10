@@ -6,5 +6,5 @@ from .models import Pet
 
 @register(Pet)
 class PetIndex(AlgoliaIndex):
-    fields = ['id', 'owner_id', 'vet_id', 'name', 'updated_at']
+    fields = ['id', 'vet_id', 'name', 'updated_at']
     index_name = 'pets'
