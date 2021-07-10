@@ -148,6 +148,6 @@ PET_ACTIVITY = 3
 
 IMAGE_TYPES = (
     (MEDICAL_RECORD, _('Medical Record')),
-    (PET_PROFILE, _('Pet Profule')),
+    (PET_PROFILE, _('Pet Profile')),
     (PET_ACTIVITY, _('Pet Activity'))
 )

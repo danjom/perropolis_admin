@@ -13,7 +13,8 @@ from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _, gettext
 
 from customers_and_pets.forms import PetFeedingForm, PetMedicationForm, PetBelongingForm, PetMedicalRecordsForm, \
-    CustomerCreationForm, CustomerChangeForm, CustomerPasswordChangeForm
+    CustomerCreationForm, CustomerChangeForm, CustomerPasswordChangeForm, PetImageForm, PetVideoForm, \
+    MedicalRecordImageForm, MedicalRecordVideoForm
 from customers_and_pets.models import Customer, Pet, PetImage, PetVideo, PetFeeding, PetMedication, PetBelonging, \
     PetMedicalRecords, UserPet, PetMedicationSchedule
 from shared.admin import ModelAdminWithSaveOverrideForCreationAndUpdate, ModelAdminChangeDisabled
@@ -179,8 +180,9 @@ class PetBelongingInline(admin.TabularInline):
 
 
 class PetImageInline(admin.TabularInline):
+    form = PetImageForm
     model = PetImage
-    readonly_fields = ('version', 'image_small')
+    readonly_fields = ('version', 'image_small', 'reference_type', 'reference_id')
     extra = 1
 
     def has_change_permission(self, request, obj=None):
@@ -188,8 +190,29 @@ class PetImageInline(admin.TabularInline):
 
 
 class PetVideoInline(admin.TabularInline):
+    form = PetVideoForm
     model = PetVideo
-    readonly_fields = ('version',)
+    readonly_fields = ('version', 'reference_type', 'reference_id')
+    extra = 1
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
+class MedicalRecordImageInline(admin.TabularInline):
+    form = MedicalRecordImageForm
+    model = PetImage
+    readonly_fields = ('version', 'image_small', 'reference_type', 'reference_id')
+    extra = 1
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
+class MedicalRecordVideoInline(admin.TabularInline):
+    form = MedicalRecordVideoForm
+    model = PetVideo
+    readonly_fields = ('version', 'reference_type', 'reference_id')
     extra = 1
 
     def has_change_permission(self, request, obj=None):
@@ -352,6 +375,6 @@ class PetMedicalRecordsAdmin(ModelAdminWithSaveOverrideForCreationAndUpdate):
     readonly_fields = ('event', 'created_by', 'admin_created', 'updated_by', 'admin_updated')
 
     autocomplete_fields = ['pet', 'action']
-
+    inlines = [MedicalRecordImageInline, MedicalRecordVideoInline]
 
 

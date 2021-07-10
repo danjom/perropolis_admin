@@ -9,7 +9,8 @@ from django.db import models
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from perropolis.constants import GENDERS, MEASURE_UNITS, BELONGING_TYPES, IMAGE_TYPES
+from perropolis import constants
+from perropolis.constants import GENDERS, MEASURE_UNITS, BELONGING_TYPES, IMAGE_TYPES, PET_PROFILE
 
 
 class Customer(models.Model):
@@ -287,15 +288,48 @@ class PetMedicalRecords(models.Model):
         ]
 
 
-class PetImage(models.Model):
-    pet = models.ForeignKey(Pet, on_delete=models.PROTECT)
-    url = CloudinaryField('image', folder=f'/platform/{settings.ENVIRONMENT}/images/')
+class PetMedia(models.Model):
+    """
+    Abstract class for Images and Videos.
+    """
+    medical_record = models.ForeignKey(PetMedicalRecords, blank=True, null=True, on_delete=models.PROTECT)
+    pet = models.ForeignKey(Pet, blank=True, null=True, on_delete=models.PROTECT)
+    reference_type = models.IntegerField(_('Reference Type'), blank=True, null=True, choices=IMAGE_TYPES)
+    reference_id = models.IntegerField(_('Reference ID'), blank=True, null=True)
+    created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     version = models.IntegerField(_('Version'), blank=True, null=True)
+
+    @staticmethod
+    def delete_from_cloudnary(public_id=None):
+        if public_id is None:
+            return
+        uploader.destroy(public_id, invalidate=True)
+
+    def save(self, *args, **kwargs):
+        if self.pet is not None:
+            self.reference_id = self.pet.id
+            self.reference_type = constants.PET_PROFILE
+        if self.medical_record is not None:
+            self.reference_id = self.medical_record.id
+            self.reference_type = constants.MEDICAL_RECORD
+        super().save(*args, **kwargs)
+        self.version = self.url.version
+        super().save(*args, **kwargs)
+
+    def delete(self, using=None, keep_parents=False):
+        public_id = getattr(self.url, 'public_id', None)
+        super().delete(using, keep_parents)
+        if public_id:
+            self.delete_image_from_cloudnary(public_id=public_id)
+
+    class Meta:
+        abstract = True
+
+
+class PetImage(PetMedia):
+    url = CloudinaryField('image', folder=f'/platform/{settings.ENVIRONMENT}/images/')
     height = models.IntegerField(_('Height'))
     width = models.IntegerField(_('Width'))
-    reference_type = models.IntegerField(_('Reference Type'), choices=IMAGE_TYPES)
-    reference_id = models.IntegerField(_('Reference ID'))
-    created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
 
     def image_small(self):
         try:
@@ -313,25 +347,8 @@ class PetImage(models.Model):
     image.short_description = _('Image Preview')
     image.allow_tags = image_small.allow_tags = True
 
-    @staticmethod
-    def delete_image_from_cloudnary(public_id=None):
-        if public_id is None:
-            return
-        uploader.destroy(public_id, invalidate=True)
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        self.version = self.url.version
-        super().save(*args, **kwargs)
-
-    def delete(self, using=None, keep_parents=False):
-        public_id = getattr(self.url, 'public_id', None)
-        super().delete(using, keep_parents)
-        if public_id:
-            self.delete_image_from_cloudnary(public_id=public_id)
-
     def __str__(self):
-        return f'{self.pet.name} - {self.get_reference_type_display()} - {self.version}'
+        return f'{self.get_reference_type_display()} - {self.version}'
 
     class Meta:
         db_table = 'pet_images'
@@ -339,34 +356,12 @@ class PetImage(models.Model):
         verbose_name_plural = _('Pet Images')
 
 
-class PetVideo(models.Model):
-    pet = models.ForeignKey(Pet, on_delete=models.PROTECT)
+class PetVideo(PetMedia):
     url = CloudinaryField('video', resource_type='video', folder=f'/platform/{settings.ENVIRONMENT}/videos/')
     name = models.CharField(_('Name'), max_length=20)
-    version = models.IntegerField(_('Version'), blank=True, null=True)
-    reference_type = models.IntegerField(_('Reference Type'), choices=IMAGE_TYPES)
-    reference_id = models.IntegerField(_('Reference ID'))
-    created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
 
     def __str__(self):
-        return f'{self.pet.name} - {self.name} - {self.get_reference_type_display()} - {self.version}'
-
-    @staticmethod
-    def delete_video_from_cloudnary(public_id=None):
-        if public_id is None:
-            return
-        uploader.destroy(public_id, invalidate=True)
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        self.version = self.url.version
-        super().save(*args, **kwargs)
-
-    def delete(self, using=None, keep_parents=False):
-        public_id = getattr(self.url, 'public_id', None)
-        super().delete(using, keep_parents)
-        if public_id:
-            self.delete_video_from_cloudnary(public_id=public_id)
+        return f'{self.name} - {self.get_reference_type_display()} - {self.version}'
 
     class Meta:
         db_table = 'pet_videos'

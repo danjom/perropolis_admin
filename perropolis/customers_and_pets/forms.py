@@ -4,7 +4,8 @@ from django.contrib.auth.forms import UsernameField, ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from customers_and_pets.models import PetFeeding, PetMedication, PetMedicalRecords, PetBelonging, Customer
+from customers_and_pets.models import PetFeeding, PetMedication, PetMedicalRecords, PetBelonging, Customer, PetImage, \
+    PetVideo
 
 
 class PetFeedingForm(forms.ModelForm):
@@ -37,6 +38,34 @@ class PetBelongingForm(forms.ModelForm):
     class Meta:
         model = PetBelonging
         fields = '__all__'
+
+
+class PetImageForm(forms.ModelForm):
+    class Meta:
+        model = PetImage
+        fields = '__all__'
+        exclude = ['medical_record']
+
+
+class PetVideoForm(forms.ModelForm):
+    class Meta:
+        model = PetVideo
+        fields = '__all__'
+        exclude = ['medical_record']
+
+
+class MedicalRecordImageForm(forms.ModelForm):
+    class Meta:
+        model = PetImage
+        fields = '__all__'
+        exclude = ['pet']
+
+
+class MedicalRecordVideoForm(forms.ModelForm):
+    class Meta:
+        model = PetVideo
+        fields = '__all__'
+        exclude = ['pet']
 
 
 class CustomerChangeForm(forms.ModelForm):
